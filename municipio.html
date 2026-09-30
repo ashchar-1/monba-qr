@@ -6,6 +6,7 @@
     <title>Monbá QR - Municipio</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#00A6C0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -13,22 +14,37 @@
     <header>
         <a href="index.html" class="btn-volver"><i class="fa-solid fa-arrow-left"></i></a>
         <h1 id="header-titulo">Cargando...</h1>
+        <button class="btn-favoritos-header" id="btn-fav-municipio" data-action="fav" title="Guardar en favoritos">
+            <i class="fa-regular fa-heart"></i>
+        </button>
     </header>
 
     <main id="contenido-municipio" style="display:none;">
-        <div class="mapa-contenedor"><iframe id="mapa-iframe" src="" allowfullscreen="" loading="lazy"></iframe></div>
+        <!-- MAPA -->
+        <div class="mapa-contenedor">
+            <iframe id="mapa-iframe" src="" allowfullscreen="" loading="lazy"></iframe>
+        </div>
 
+        <!-- RESEÑA Y ACCIONES -->
         <div class="resena-tarjeta">
             <h2 id="municipio-nombre"><i class="fa-solid fa-map-location-dot"></i></h2>
             <p id="municipio-resena"></p>
-            <a id="link-google" class="btn-google" target="_blank" rel="noopener"><i class="fa-brands fa-google"></i> ¿Quieres saber más? Búscalo en Google</a>
+            <a id="link-google" class="btn-google" target="_blank" rel="noopener">
+                <i class="fa-brands fa-google"></i> ¿Quieres saber más? Búscalo en Google
+            </a>
             <div class="barra-acciones">
-                <button class="btn-accion" data-action="compartir" data-titulo="Monbá QR" data-texto="¡Descubre este destino en Barlovento!"><i class="fa-solid fa-share-nodes"></i> Compartir</button>
-                <button class="btn-accion" data-action="ver-qr"><i class="fa-solid fa-qrcode"></i> Ver QR</button>
-              <!--  <button class="btn-accion" id="btn-como-llegar" data-action="ruta"><i class="fa-solid fa-route"></i> Cómo llegar</button>-->
+                <button class="btn-accion" data-action="compartir" data-titulo="Monbá QR" data-texto="¡Descubre este destino en Barlovento!">
+                    <i class="fa-solid fa-share-nodes"></i> Compartir
+                </button>
+                <button class="btn-accion" data-action="ver-qr">
+                    <i class="fa-solid fa-qrcode"></i> Ver QR
+                </button>
+                <!-- BOTÓN CÓMO LLEGAR (Comentado por ahora, pero listo para usarse) -->
+                <!-- <button class="btn-accion" id="btn-como-llegar" data-action="ruta"><i class="fa-solid fa-route"></i> Cómo llegar</button> -->
             </div>
         </div>
 
+        <!-- SECCIÓN DE PLAYAS (Solo se muestra si el municipio tiene array 'playas') -->
         <div class="seccion" id="seccion-playas" style="display:none;">
             <h2><i class="fa-solid fa-umbrella-beach"></i> Playas del municipio</h2>
             <div class="leyenda-banderas">
@@ -36,39 +52,27 @@
                 <span><i class="fa-solid fa-flag" style="color:#f57f17;"></i> Amarilla: oleaje moderado</span>
                 <span><i class="fa-solid fa-flag" style="color:#c62828;"></i> Roja: oleaje fuerte</span>
             </div>
-            
-            <!-- === INICIO ESTRUCTURA "VER MÁS" === -->
-            <div class="wrapper-playas" id="wrapper-playas">
-                <div class="grid-playas" id="contenedor-playas"></div>
-                <div class="sombra-ver-mas" id="sombra-playas"></div>
-            </div>
-            <button id="btn-ver-mas-playas" class="btn-ver-mas" style="display: none;">
-                Ver más <i class="fa-solid fa-chevron-down"></i>
-            </button>
-            <!-- === FIN ESTRUCTURA "VER MÁS" === -->
-
+            <div class="grid-playas" id="contenedor-playas"></div>
         </div>
-        <!-- SECCIÓN DE RINCONES NATURALES (cascadas, cuevas, balnearios) -->
-<div class="seccion" id="seccion-rincones" style="display:none;">
-    <h2><i class="fa-solid fa-mountain-sun"></i> Rincones naturales</h2>
-    <p style="color:#666;font-size:.9rem;margin-bottom:15px;">Cascadas, balnearios y cuevas: la Barlovento de agua dulce y montaña.</p>
-    <div class="grid-rincones" id="contenedor-rincones"></div>
-</div>
-        <button class="btn-fav-flotante" id="btn-fav-municipio" data-action="fav" title="Guardar en favoritos">
-            <i class="fa-regular fa-heart"></i>
-        </button>
 
-        <!-- ============ POR AHORA OCULTO: CATEGORÍAS ============
-        <div class="seccion">
-            <h2>Explora por Categoría</h2>
-            <div class="grid-categorias" id="contenedor-categorias"></div>
+        <!-- SECCIÓN DE RINCONES NATURALES (Cascadas, cuevas, balnearios) -->
+        <div class="seccion" id="seccion-rincones" style="display:none;">
+            <h2><i class="fa-solid fa-mountain-sun"></i> Rincones naturales</h2>
+            <p style="color:#666;font-size:.9rem;margin-bottom:15px;">Cascadas, balnearios y cuevas: la Barlovento de agua dulce y montaña.</p>
+            <div class="grid-rincones" id="contenedor-rincones"></div>
         </div>
-        ========================================================== -->
     </main>
 
-    <div id="mensaje-estado" class="estado-pantalla"><i class="fa-solid fa-spinner fa-spin fa-2x"></i><p>Buscando información...</p></div>
+    <!-- ESTADO DE CARGA -->
+    <div id="mensaje-estado" class="estado-pantalla">
+        <i class="fa-solid fa-spinner fa-spin fa-2x"></i>
+        <p>Buscando información...</p>
+    </div>
 
-    <footer class="monba-footer">© <span data-anio></span> Monbá QR · Directorio Turístico de Barlovento<br>Diseño y desarrollo: <span class="firma">Luis Hernández</span></footer>
+    <footer class="monba-footer">
+        © <span data-anio></span> Monbá QR · Directorio Turístico de Barlovento<br>
+        Diseño y desarrollo: <span class="firma">Luis Alejandro Hernández Rada</span>
+    </footer>
 
     <script src="app.js"></script>
     <script src="municipio.js"></script>
