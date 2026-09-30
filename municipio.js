@@ -1,3 +1,9 @@
+/* =====================================================
+   MONBÁ QR · municipio.js
+   LÓGICA DE RENDERIZADO
+   (Requiere que municipiosDB.js esté cargado antes)
+   ===================================================== */
+
 function cargarMunicipio() {
     const id = getParam("id");
     const m = municipiosDB[id];
@@ -14,10 +20,16 @@ function cargarMunicipio() {
     $("#municipio-nombre").innerHTML = `<i class="fa-solid fa-map-location-dot"></i> ${m.nombre}`;
     $("#municipio-resena").textContent = m.resena;
     $("#mapa-iframe").src = m.mapaUrl;
-    $("#btn-como-llegar").dataset.maps = m.mapsNavegacion;
+    
+    // Si existe el botón de cómo llegar, le asignamos la ruta
+    const btnLlegar = $("#btn-como-llegar");
+    if (btnLlegar) {
+        btnLlegar.dataset.maps = m.mapsNavegacion;
+    }
+    
     $("#link-google").href = `https://www.google.com/search?q=${encodeURIComponent(m.busquedaGoogle)}`;
 
-    /* PLAYAS (solo si el municipio tiene costa) */
+    /* PLAYAS (solo si el municipio tiene costa y el array no está vacío) */
     if (m.playas && m.playas.length > 0) {
         $("#seccion-playas").style.display = "block";
         $("#contenedor-playas").innerHTML = m.playas.map(p => `
@@ -54,7 +66,11 @@ function cargarMunicipio() {
 
     estado.style.display = "none";
     contenedor.style.display = "block";
-    sincronizarFavoritos();
+    
+    // Sincronizar el estado de los favoritos al cargar la página
+    if (typeof sincronizarFavoritos === "function") {
+        sincronizarFavoritos();
+    }
 }
 
 /* Icono según tipo de rincón */
