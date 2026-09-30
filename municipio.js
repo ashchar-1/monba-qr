@@ -250,14 +250,40 @@ const municipiosDB = {
   }
         ]
     },
-    "acevedo": {
-        nombre: "Municipio Acevedo",
-        mapaUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d125586.32626649774!2d-66.3667!3d10.2833!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8c2c731a22222223%3A0x1111111111111111!2sCaucagua%2C%20Miranda!5e0!3m2!1ses!2sve!4v1700000000000!5m2!1ses!2sve",
-        mapsNavegacion: "https://www.google.com/maps/dir/?api=1&destination=10.2833,-66.3667",
-        busquedaGoogle: "Caucagua Acevedo ruta del cacao haciendas turismo",
-        resena: "Caucagua huele a cacao: aquí se cosecha, se seca y se tuesta el 'oro marrón' que le dio fama mundial a Barlovento. Entre haciendas centenarias y esquinas de aire colonial, el municipio Acevedo guarda la memoria de las antiguas tierras cacaoteras y la calidez de un pueblo que saluda con un 'buenos días' que suena a abrazo. Es el corazón verde y montañoso de la región.",
-        playas: []
-    },
+"acevedo": {
+    nombre: "Municipio Acevedo",
+    mapaUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d125586.32626649774!2d-66.3667!3d10.2833!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8c2c731a22222223%3A0x1111111111111111!2sCaucagua%2C%20Miranda!5e0!3m2!1ses!2sve!4v1700000000000!5m2!1ses!2sve",
+    mapsNavegacion: "https://www.google.com/maps/dir/?api=1&destination=10.2833,-66.3667",
+    busquedaGoogle: "Caucagua Acevedo ruta del cacao haciendas turismo",
+    resena: "Caucagua huele a cacao: aquí se cosecha, se seca y se tuesta el 'oro marrón' que le dio fama mundial a Barlovento. Entre haciendas centenarias y esquinas de aire colonial, el municipio Acevedo guarda la memoria de las antiguas tierras cacaoteras y la calidez de un pueblo que saluda con un 'buenos días' que suena a abrazo. Es el corazón verde y montañoso de la región.",
+    playas: [],
+    rincones: [
+        {
+            nombre: "Chorros de Urba (Panaquire)",
+            tipo: "Cascada",
+            descripcion: "Caídas de agua cristalina rodeadas de vegetación tropical, uno de los balnearios naturales más queridos de Barlovento.",
+            comoLlegar: "https://www.google.com/maps/dir/?api=1&destination=Chorros+de+Urba+Panaquire+Miranda"
+        },
+        {
+            nombre: "Balneario turístico de Capaya",
+            tipo: "Balneario",
+            descripcion: "Pozo natural de aguas frías y transparentes, ideal para refrescarse entre la montaña cacaotera.",
+            comoLlegar: "https://www.google.com/maps/dir/?api=1&destination=Balneario+Capaya+Caucagua+Miranda"
+        },
+        {
+            nombre: "Cueva Walter Dupuy",
+            tipo: "Cueva",
+            descripcion: "Formación geológica de gran valor espeleológico, refugio de fauna local y sitio de interés para los amantes del turismo de aventura.",
+            comoLlegar: "https://www.google.com/maps/dir/?api=1&destination=Cueva+Walter+Dupuy+Caucagua+Miranda"
+        },
+        {
+            nombre: "Cascadas del río Marasmita",
+            tipo: "Cascada",
+            descripcion: "Serie de saltos de agua en medio del bosque húmedo, uno de los tesoros menos conocidos de Acevedo.",
+            comoLlegar: "https://www.google.com/maps/dir/?api=1&destination=Cascadas+Rio+Marasmita+Miranda"
+        }
+    ]
+},
     "andres-bello": {
         nombre: "Municipio Andrés Bello",
         mapaUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d125547.88785802187!2d-65.9833!3d10.2833!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8c2c731a22222223%3A0x2222222222222222!2sSan%20Jos%C3%A9%20de%20Barlovento%2C%20Miranda!5e0!3m2!1ses!2sve!4v1700000000000!5m2!1ses!2sve",
