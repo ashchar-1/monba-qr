@@ -426,80 +426,60 @@ function cargarMunicipio() {
     $("#municipio-nombre").innerHTML = `<i class="fa-solid fa-map-location-dot"></i> ${m.nombre}`;
     $("#municipio-resena").textContent = m.resena;
     $("#mapa-iframe").src = m.mapaUrl;
+    $("#btn-como-llegar").dataset.maps = m.mapsNavegacion;
     $("#link-google").href = `https://www.google.com/search?q=${encodeURIComponent(m.busquedaGoogle)}`;
 
-    /* Botón cómo llegar (comentado por ahora): solo si existe */
-    const bl = $("#btn-como-llegar"); if (bl) bl.dataset.maps = m.mapsNavegacion;
-
-    /* Corazón flotante del municipio */
-    const bf = $("#btn-fav-municipio");
-    if (bf) {
-        bf.dataset.favId = "municipio-" + id;
-        bf.dataset.favTitulo = m.nombre;
-        bf.dataset.favUrl = "municipio.html?id=" + id;
-    }
-
-    /* Playas con corazoncito propio y control "Ver más" */
+    /* PLAYAS (solo si el municipio tiene costa) */
     if (m.playas && m.playas.length > 0) {
         $("#seccion-playas").style.display = "block";
-        $("#contenedor-playas").innerHTML = m.playas.map(p => {
-            const pid = "playa-" + id + "-" + p.nombre.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-            return `
+        $("#contenedor-playas").innerHTML = m.playas.map(p => `
             <div class="tarjeta-playa">
-                <button class="btn-fav-mini" data-action="fav" data-fav-id="${pid}" data-fav-titulo="${p.nombre}" data-fav-url="municipio.html?id=${id}" title="Guardar playa">
-                    <i class="fa-regular fa-heart"></i>
-                </button>
                 <div class="playa-header">
                     <h4><i class="fa-solid fa-umbrella-beach"></i> ${p.nombre}</h4>
                     <span class="badge-bandera b-${p.bandera}"><i class="fa-solid fa-flag"></i> Bandera ${p.bandera}</span>
                 </div>
                 <p class="playa-dato"><i class="fa-solid fa-water"></i> <span><strong>Oleaje:</strong> ${p.oleaje}</span></p>
-                
-                <!-- Botón/Enlace a Google Maps -->
-                <p class="playa-dato">
-                    <i class="fa-solid fa-location-dot"></i> 
-                    <a href="${p.comoLlegar}" target="_blank" rel="noopener noreferrer" class="btn-ruta-maps">
-                        Ver ruta en Google Maps <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                    </a>
-                </p>
-
+                <p class="playa-dato"><i class="fa-solid fa-route"></i> <span><strong>Cómo llegar:</strong> ${p.comoLlegar}</span></p>
                 <p class="playa-dato tip"><i class="fa-solid fa-lightbulb"></i> <span>${p.tip}</span></p>
-            </div>`;
-        }).join("");
+            </div>
+        `).join("");
+    }
 
-        /* Lógica del colapsable "Ver más" */
-        const wrapper = $("#wrapper-playas");
-        const btnVerMas = $("#btn-ver-mas-playas");
-
-        if (wrapper && btnVerMas) {
-            wrapper.classList.remove("expandido");
-
-            if (m.playas.length > 2) {
-                btnVerMas.style.display = "block";
-                btnVerMas.innerHTML = 'Ver más <i class="fa-solid fa-chevron-down"></i>';
-
-                const nuevoBtn = btnVerMas.cloneNode(true);
-                btnVerMas.parentNode.replaceChild(nuevoBtn, btnVerMas);
-
-                nuevoBtn.addEventListener("click", () => {
-                    wrapper.classList.toggle("expandido");
-                    const expandido = wrapper.classList.contains("expandido");
-                    nuevoBtn.innerHTML = expandido 
-                        ? 'Ver menos <i class="fa-solid fa-chevron-up"></i>' 
-                        : 'Ver más <i class="fa-solid fa-chevron-down"></i>';
-                });
-            } else {
-                btnVerMas.style.display = "none";
-                wrapper.classList.add("expandido");
-            }
-        }
-    } else {
-        $("#seccion-playas").style.display = "none";
+    /* RINCONES NATURALES (cascadas, cuevas, balnearios) */
+    if (m.rincones && m.rincones.length > 0) {
+        $("#seccion-rincones").style.display = "block";
+        $("#contenedor-rincones").innerHTML = m.rincones.map(r => `
+            <div class="tarjeta-rincon">
+                <div class="rincon-header">
+                    <span class="badge-tipo t-${r.tipo.toLowerCase()}">
+                        <i class="fa-solid ${iconoTipo(r.tipo)}"></i> ${r.tipo}
+                    </span>
+                    <h4>${r.nombre}</h4>
+                </div>
+                <p class="rincon-desc">${r.descripcion}</p>
+                <a href="${r.comoLlegar}" target="_blank" rel="noopener" class="btn-como-llegar-rincon">
+                    <i class="fa-solid fa-route"></i> Cómo llegar
+                </a>
+            </div>
+        `).join("");
     }
 
     estado.style.display = "none";
     contenedor.style.display = "block";
     sincronizarFavoritos();
+}
+
+/* Icono según tipo de rincón */
+function iconoTipo(tipo) {
+    const iconos = {
+        "cascada": "fa-water",
+        "balneario": "fa-swimmer",
+        "cueva": "fa-mountain",
+        "poza": "fa-droplet",
+        "sendero": "fa-person-hiking",
+        "mirador": "fa-binoculars"
+    };
+    return iconos[tipo.toLowerCase()] || "fa-leaf";
 }
 
 document.addEventListener("DOMContentLoaded", cargarMunicipio);
