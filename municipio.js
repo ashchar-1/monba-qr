@@ -1,9 +1,3 @@
-/* =====================================================
-   MONBÁ QR · municipio.js
-   LÓGICA DE RENDERIZADO
-   (Requiere que municipiosDB.js esté cargado antes)
-   ===================================================== */
-
 function cargarMunicipio() {
     const id = getParam("id");
     const m = municipiosDB[id];
@@ -21,34 +15,38 @@ function cargarMunicipio() {
     $("#municipio-resena").textContent = m.resena;
     $("#mapa-iframe").src = m.mapaUrl;
     
-    // Si existe el botón de cómo llegar, le asignamos la ruta
     const btnLlegar = $("#btn-como-llegar");
-    if (btnLlegar) {
-        btnLlegar.dataset.maps = m.mapsNavegacion;
-    }
+    if (btnLlegar) btnLlegar.dataset.maps = m.mapsNavegacion;
     
     $("#link-google").href = `https://www.google.com/search?q=${encodeURIComponent(m.busquedaGoogle)}`;
 
-    /* PLAYAS (solo si el municipio tiene costa y el array no está vacío) */
+    /* PLAYAS */
     if (m.playas && m.playas.length > 0) {
         $("#seccion-playas").style.display = "block";
-        $("#contenedor-playas").innerHTML = m.playas.map(p => `
+        $("#contenedor-playas").innerHTML = m.playas.map(p => {
+            // Limpiar la URL (quitar espacios raros que rompen el link)
+            const urlLimpia = p.comoLlegar.replace(/\s+/g, '');
+            return `
             <div class="tarjeta-playa">
                 <div class="playa-header">
                     <h4><i class="fa-solid fa-umbrella-beach"></i> ${p.nombre}</h4>
                     <span class="badge-bandera b-${p.bandera}"><i class="fa-solid fa-flag"></i> Bandera ${p.bandera}</span>
                 </div>
                 <p class="playa-dato"><i class="fa-solid fa-water"></i> <span><strong>Oleaje:</strong> ${p.oleaje}</span></p>
-                <p class="playa-dato"><i class="fa-solid fa-route"></i> <span><strong>Cómo llegar:</strong> ${p.comoLlegar}</span></p>
+                <a href="${urlLimpia}" target="_blank" rel="noopener" class="btn-como-llegar-playa">
+                    <i class="fa-solid fa-route"></i> Cómo llegar
+                </a>
                 <p class="playa-dato tip"><i class="fa-solid fa-lightbulb"></i> <span>${p.tip}</span></p>
-            </div>
-        `).join("");
+            </div>`;
+        }).join("");
     }
 
-    /* RINCONES NATURALES (cascadas, cuevas, balnearios) */
+    /* RINCONES NATURALES */
     if (m.rincones && m.rincones.length > 0) {
         $("#seccion-rincones").style.display = "block";
-        $("#contenedor-rincones").innerHTML = m.rincones.map(r => `
+        $("#contenedor-rincones").innerHTML = m.rincones.map(r => {
+            const urlLimpia = r.comoLlegar.replace(/\s+/g, '');
+            return `
             <div class="tarjeta-rincon">
                 <div class="rincon-header">
                     <span class="badge-tipo t-${r.tipo.toLowerCase()}">
@@ -57,23 +55,18 @@ function cargarMunicipio() {
                     <h4>${r.nombre}</h4>
                 </div>
                 <p class="rincon-desc">${r.descripcion}</p>
-                <a href="${r.comoLlegar}" target="_blank" rel="noopener" class="btn-como-llegar-rincon">
+                <a href="${urlLimpia}" target="_blank" rel="noopener" class="btn-como-llegar-rincon">
                     <i class="fa-solid fa-route"></i> Cómo llegar
                 </a>
-            </div>
-        `).join("");
+            </div>`;
+        }).join("");
     }
 
     estado.style.display = "none";
     contenedor.style.display = "block";
-    
-    // Sincronizar el estado de los favoritos al cargar la página
-    if (typeof sincronizarFavoritos === "function") {
-        sincronizarFavoritos();
-    }
+    if (typeof sincronizarFavoritos === "function") sincronizarFavoritos();
 }
 
-/* Icono según tipo de rincón */
 function iconoTipo(tipo) {
     const iconos = {
         "cascada": "fa-water",
