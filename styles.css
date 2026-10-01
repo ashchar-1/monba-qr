@@ -403,3 +403,24 @@ header h1 { font-size: 1.3rem; font-weight: 700; letter-spacing: .5px; }
 @media (min-width: 700px) {
     .grid-rincones { grid-template-columns: 1fr 1fr; }
 }
+/* Botón "Cómo llegar" en tarjetas de playa */
+.btn-como-llegar-playa {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--color-primario);
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: var(--radio-pill);
+    font-size: .88rem;
+    font-weight: 600;
+    text-decoration: none;
+    margin-top: 5px;
+    transition: all .2s ease;
+    width: fit-content;
+}
+.btn-como-llegar-playa:active {
+    transform: scale(.97);
+    background: #005a8c;
+}
