@@ -1,8 +1,3 @@
-/* =====================================================
-   MONBÁ QR · municipio.js
-   LÓGICA DE RENDERIZADO
-   ===================================================== */
-
 function cargarMunicipio() {
     const id = getParam("id");
     const m = municipiosDB[id];
@@ -32,28 +27,37 @@ function cargarMunicipio() {
             const urlLimpia = p.comoLlegar.replace(/\s+/g, '');
             const favId = `playa-${id}-${p.nombre.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
             return `
-            <div class="tarjeta-playa">
-                <img src="${p.imagen}" alt="${p.nombre}" class="playa-img" loading="lazy">
-                <div class="playa-contenido">
-                    <div class="playa-header">
+            <div class="tarjeta-playa-premium">
+                <div class="playa-img-wrapper">
+                    <img src="${p.imagen}" alt="${p.nombre}" class="playa-img" loading="lazy">
+                    <div class="playa-img-overlay"></div>
+                    <span class="badge-bandera-premium b-${p.bandera}">
+                        <i class="fa-solid fa-flag"></i> Bandera ${p.bandera}
+                    </span>
+                </div>
+                <div class="playa-content-premium">
+                    <div class="playa-title-row">
                         <h4><i class="fa-solid fa-umbrella-beach"></i> ${p.nombre}</h4>
-                        <span class="badge-bandera b-${p.bandera}"><i class="fa-solid fa-flag"></i> Bandera ${p.bandera}</span>
                     </div>
-                    <p class="playa-dato"><i class="fa-solid fa-water"></i> <span><strong>Oleaje:</strong> ${p.oleaje}</span></p>
-                    <a href="${urlLimpia}" target="_blank" rel="noopener" class="btn-como-llegar-playa">
-                        <i class="fa-solid fa-route"></i> Cómo llegar
-                    </a>
-                    <p class="playa-dato tip"><i class="fa-solid fa-lightbulb"></i> <span>${p.tip}</span></p>
-                    <div class="playa-acciones">
-                        <button class="btn-fav-mini" data-action="fav" data-fav-id="${favId}" data-fav-titulo="${p.nombre}" data-fav-url="municipio.html?id=${id}" title="Guardar en favoritos">
-                            <i class="fa-regular fa-heart"></i>
-                        </button>
-                        <button class="btn-accion-mini" data-action="compartir" data-titulo="${p.nombre}" data-texto="Mira esta playa en Monbá QR" title="Compartir">
-                            <i class="fa-solid fa-share-nodes"></i>
-                        </button>
-                        <button class="btn-accion-mini" data-action="ver-qr-playa" data-nombre="${p.nombre}" data-imagen="${p.imagen}" data-tip="${p.tip}" title="Ver QR">
-                            <i class="fa-solid fa-qrcode"></i>
-                        </button>
+                    <div class="playa-info-row">
+                        <span class="info-item"><i class="fa-solid fa-water"></i> <strong>Oleaje:</strong> ${p.oleaje}</span>
+                    </div>
+                    <p class="playa-tip-premium"><i class="fa-solid fa-lightbulb"></i> ${p.tip}</p>
+                    <div class="playa-actions-premium">
+                        <a href="${urlLimpia}" target="_blank" rel="noopener" class="btn-llegar-premium">
+                            <i class="fa-solid fa-route"></i> Cómo llegar
+                        </a>
+                        <div class="playa-mini-actions">
+                            <button class="btn-mini-premium btn-fav" data-action="fav" data-fav-id="${favId}" data-fav-titulo="${p.nombre}" data-fav-url="municipio.html?id=${id}" title="Guardar en favoritos">
+                                <i class="fa-regular fa-heart"></i>
+                            </button>
+                            <button class="btn-mini-premium btn-share" data-action="compartir" data-titulo="${p.nombre}" data-texto="Mira esta playa en Monbá QR" title="Compartir">
+                                <i class="fa-solid fa-share-nodes"></i>
+                            </button>
+                            <button class="btn-mini-premium btn-qr" data-action="ver-qr-playa" data-nombre="${p.nombre}" data-imagen="${p.imagen}" data-tip="${p.tip}" title="Ver QR">
+                                <i class="fa-solid fa-qrcode"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>`;
@@ -67,29 +71,34 @@ function cargarMunicipio() {
             const urlLimpia = r.comoLlegar.replace(/\s+/g, '');
             const favId = `rincon-${id}-${r.nombre.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
             return `
-            <div class="tarjeta-rincon">
-                <img src="${r.imagen}" alt="${r.nombre}" class="rincon-img" loading="lazy">
-                <div class="rincon-contenido">
-                    <div class="rincon-header">
-                        <span class="badge-tipo t-${r.tipo.toLowerCase()}">
-                            <i class="fa-solid ${iconoTipo(r.tipo)}"></i> ${r.tipo}
-                        </span>
+            <div class="tarjeta-rincon-premium">
+                <div class="rincon-img-wrapper">
+                    <img src="${r.imagen}" alt="${r.nombre}" class="rincon-img" loading="lazy">
+                    <div class="rincon-img-overlay"></div>
+                    <span class="badge-tipo-premium t-${r.tipo.toLowerCase()}">
+                        <i class="fa-solid ${iconoTipo(r.tipo)}"></i> ${r.tipo}
+                    </span>
+                </div>
+                <div class="rincon-content-premium">
+                    <div class="rincon-title-row">
                         <h4>${r.nombre}</h4>
                     </div>
-                    <p class="rincon-desc">${r.descripcion}</p>
-                    <a href="${urlLimpia}" target="_blank" rel="noopener" class="btn-como-llegar-rincon">
-                        <i class="fa-solid fa-route"></i> Cómo llegar
-                    </a>
-                    <div class="rincon-acciones">
-                        <button class="btn-fav-mini" data-action="fav" data-fav-id="${favId}" data-fav-titulo="${r.nombre}" data-fav-url="municipio.html?id=${id}" title="Guardar en favoritos">
-                            <i class="fa-regular fa-heart"></i>
-                        </button>
-                        <button class="btn-accion-mini" data-action="compartir" data-titulo="${r.nombre}" data-texto="Mira este rincón natural en Monbá QR" title="Compartir">
-                            <i class="fa-solid fa-share-nodes"></i>
-                        </button>
-                        <button class="btn-accion-mini" data-action="ver-qr-rincon" data-nombre="${r.nombre}" data-imagen="${r.imagen}" data-descripcion="${r.descripcion}" title="Ver QR">
-                            <i class="fa-solid fa-qrcode"></i>
-                        </button>
+                    <p class="rincon-desc-premium">${r.descripcion}</p>
+                    <div class="rincon-actions-premium">
+                        <a href="${urlLimpia}" target="_blank" rel="noopener" class="btn-llegar-premium">
+                            <i class="fa-solid fa-route"></i> Cómo llegar
+                        </a>
+                        <div class="rincon-mini-actions">
+                            <button class="btn-mini-premium btn-fav" data-action="fav" data-fav-id="${favId}" data-fav-titulo="${r.nombre}" data-fav-url="municipio.html?id=${id}" title="Guardar en favoritos">
+                                <i class="fa-regular fa-heart"></i>
+                            </button>
+                            <button class="btn-mini-premium btn-share" data-action="compartir" data-titulo="${r.nombre}" data-texto="Mira este rincón natural en Monbá QR" title="Compartir">
+                                <i class="fa-solid fa-share-nodes"></i>
+                            </button>
+                            <button class="btn-mini-premium btn-qr" data-action="ver-qr-rincon" data-nombre="${r.nombre}" data-imagen="${r.imagen}" data-descripcion="${r.descripcion}" title="Ver QR">
+                                <i class="fa-solid fa-qrcode"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>`;
