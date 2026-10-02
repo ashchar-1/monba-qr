@@ -798,3 +798,232 @@ header h1 { font-size: 1.3rem; font-weight: 700; letter-spacing: .5px; }
         padding: 24px;
     }
 }
+/* =====================================================
+   30. HERO HOME CON CARRUSEL
+   ===================================================== */
+.hero-home {
+    position: relative;
+    height: 75vh;
+    min-height: 420px;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+}
+
+.hero-carrusel {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+}
+
+.hero-slide {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 1s ease-in-out, transform 6s ease;
+    transform: scale(1);
+}
+
+.hero-slide.active {
+    opacity: 1;
+    transform: scale(1.08);
+}
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0, 20, 40, 0.85) 0%, rgba(0, 20, 40, 0.3) 50%, rgba(0, 20, 40, 0.1) 100%);
+    z-index: 2;
+}
+
+.hero-contenido {
+    position: relative;
+    z-index: 3;
+    padding: 30px 24px;
+    color: #fff;
+    width: 100%;
+}
+
+.hero-contenido h2 {
+    font-size: 2.4rem;
+    font-weight: 800;
+    margin: 0 0 10px;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+    letter-spacing: -0.5px;
+}
+
+.hero-contenido p {
+    font-size: 1.05rem;
+    margin: 0 0 20px;
+    color: #e0f4ff;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
+    max-width: 500px;
+}
+
+.btn-hero {
+    background: linear-gradient(135deg, #0077b6 0%, #00b4d8 100%);
+    color: #fff;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 30px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(0, 119, 182, 0.4);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+}
+
+.btn-hero:active {
+    transform: scale(0.96);
+}
+
+/* Dots de navegación */
+.hero-dots {
+    position: absolute;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 4;
+    display: flex;
+    gap: 8px;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.dot.active {
+    background: #fff;
+    width: 24px;
+    border-radius: 4px;
+}
+
+/* =====================================================
+   31. FEED DINÁMICO
+   ===================================================== */
+.seccion-feed {
+    padding: 30px 20px;
+    background: #f4f6f8;
+}
+
+.feed-header {
+    margin-bottom: 20px;
+}
+
+.feed-header h2 {
+    font-size: 1.4rem;
+    color: #0077b6;
+    margin: 0 0 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.feed-header h2 i {
+    color: #f57f17;
+}
+
+.feed-sub {
+    color: #666;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.feed-grid {
+    display: grid;
+    gap: 16px;
+}
+
+.tarjeta-feed {
+    display: block;
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s ease;
+}
+
+.tarjeta-feed:active {
+    transform: scale(0.98);
+}
+
+.feed-img {
+    height: 180px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+.feed-categoria {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.feed-info {
+    padding: 16px;
+}
+
+.feed-info h3 {
+    font-size: 1.1rem;
+    color: #0077b6;
+    margin: 0 0 8px;
+    font-weight: 700;
+}
+
+.feed-info p {
+    font-size: 0.9rem;
+    color: #555;
+    line-height: 1.5;
+    margin: 0 0 12px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.feed-ver-mas {
+    font-size: 0.85rem;
+    color: #00b4d8;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Desktop: grid de 2 columnas */
+@media (min-width: 700px) {
+    .feed-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    .hero-contenido h2 {
+        font-size: 3.2rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .feed-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
