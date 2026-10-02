@@ -273,3 +273,103 @@ document.addEventListener("DOMContentLoaded", () => {
     $("#modal-qr")?.addEventListener("click", function (e) { if (e.target === this) cerrarQR(); });
     $$("[data-anio]").forEach(el => el.textContent = new Date().getFullYear());
 });
+/* ---------- QR PERSONALIZADO PARA PLAYAS/RINCONES ---------- */
+async function mostrarQRPlayaRincon(nombre, imagen, descripcion) {
+    asegurarModalQR();
+    const canvas = $("#qr-canvas");
+    const ctx = canvas.getContext("2d");
+    const W = 640, H = 960;
+    
+    // Cargar logo y QR en paralelo
+    const logoPromise = cargarLogo();
+    
+    // Fondo con imagen
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.src = imagen;
+    await new Promise(res => { img.onload = () => res(); img.onerror = res; });
+    
+    // Dibujar imagen de fondo (con overlay oscuro para legibilidad)
+    ctx.drawImage(img, 0, 0, W, H);
+    ctx.fillStyle = "rgba(0,0,0,0.6)";
+    ctx.fillRect(0, 0, W, H);
+    
+    // Franja superior
+    const g = ctx.createLinearGradient(0, 0, W, 150);
+    g.addColorStop(0, "#0077b6");
+    g.addColorStop(1, "#00b4d8");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, 150);
+    
+    // Logo
+    const logoImg = await logoPromise;
+    if (logoImg) {
+        ctx.save();
+        ctx.shadowColor = "rgba(0,0,0,0.25)";
+        ctx.shadowBlur = 12;
+        ctx.shadowOffsetY = 4;
+        ctx.fillStyle = "#fff";
+        rr(ctx, 40, 35, 80, 80, 20);
+        ctx.fill();
+        ctx.restore();
+        ctx.save();
+        rr(ctx, 46, 41, 68, 68, 16);
+        ctx.clip();
+        ctx.drawImage(logoImg, 46, 41, 68, 68);
+        ctx.restore();
+    }
+    
+    // Marca
+    ctx.fillStyle = "#fff";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+    ctx.font = "bold 38px Segoe UI, sans-serif";
+    ctx.fillText("Monbá QR", 140, 65);
+    ctx.font = "20px Segoe UI, sans-serif";
+    ctx.fillStyle = "#fefae0";
+    ctx.fillText("La Guía de Barlovento", 140, 105);
+    
+    // Nombre del lugar
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 32px Segoe UI, sans-serif";
+    ajustarTexto(ctx, nombre, W - 80, 32);
+    ctx.fillText(nombre, W / 2, 200);
+    
+    // QR en el centro
+    const urlPuerta = new URL("qr.html?qr=" + encodeURIComponent(idAuto()) + "&to=" + encodeURIComponent(rutaRelativa()), location.href).href;
+    const qrImg = new Image();
+    qrImg.crossOrigin = "anonymous";
+    qrImg.src = qrURL(urlPuerta, 380);
+    await new Promise(res => { qrImg.onload = () => res(); qrImg.onerror = res; });
+    
+    ctx.save();
+    ctx.shadowColor = "rgba(0,0,0,0.3)";
+    ctx.shadowBlur = 20;
+    ctx.shadowOffsetY = 8;
+    ctx.fillStyle = "#fff";
+    rr(ctx, 110, 240, 420, 420, 24);
+    ctx.fill();
+    ctx.restore();
+    ctx.drawImage(qrImg, 130, 260, 380, 380);
+    
+    // Descripción abajo
+    ctx.fillStyle = "#fff";
+    ctx.font = "22px Segoe UI, sans-serif";
+    ctx.textAlign = "center";
+    ajustarTexto(ctx, descripcion, W - 80, 22, "normal");
+    ctx.fillText(descripcion, W / 2, 720);
+    
+    // Franja inferior
+    ctx.fillStyle = "#0077b6";
+    ctx.fillRect(0, H - 70, W, 70);
+    ctx.fillStyle = "#fff";
+    ctx.font = "20px Segoe UI, sans-serif";
+    ctx.fillText("Monbá QR · Directorio Turístico de Barlovento", W / 2, H - 35);
+    
+    $("#modal-qr").classList.add("activo");
+}
+
+// Agregar al switch de initAcciones:
+case "ver-qr-playa": mostrarQRPlayaRincon(el.dataset.nombre, el.dataset.imagen, el.dataset.tip); break;
+case "ver-qr-rincon": mostrarQRPlayaRincon(el.dataset.nombre, el.dataset.imagen, el.dataset.descripcion); break;
