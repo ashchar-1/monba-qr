@@ -229,100 +229,142 @@ function descargarQR() {
     }
 }
 
-/* ---------- QR PERSONALIZADO PLAYA / RINCÓN ---------- */
+
+/* ---------- QR PERSONALIZADO PARA PLAYAS/RINCONES ---------- */
+
+/* Helper: divide un texto en líneas que caben en maxW */
+function wrapText(ctx, texto, maxW) {
+    const palabras = texto.split(' ');
+    const lineas = [];
+    let lineaActual = '';
+    for (const palabra of palabras) {
+        const prueba = lineaActual ? lineaActual + ' ' + palabra : palabra;
+        if (ctx.measureText(prueba).width <= maxW) {
+            lineaActual = prueba;
+        } else {
+            if (lineaActual) lineas.push(lineaActual);
+            lineaActual = palabra;
+        }
+    }
+    if (lineaActual) lineas.push(lineaActual);
+    return lineas;
+}
+
 async function mostrarQRPlayaRincon(nombre, imagen, descripcion) {
     asegurarModalQR();
     const canvas = $("#qr-canvas");
     const ctx = canvas.getContext("2d");
     const W = 640, H = 960;
 
+    // Cargar logo y QR en paralelo
     const logoPromise = cargarLogo();
 
-    // Imagen de fondo con timeout de seguridad
-    const bgImg = await new Promise(res => {
-        if (!imagen) return res(null);
-        const i = new Image();
-        i.crossOrigin = "anonymous";
-        i.onload = () => res(i);
-        i.onerror = () => res(null);
-        setTimeout(() => res(null), 5000); // por si tarda demasiado
-        i.src = imagen;
-    });
+    // Imagen de fondo
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.src = imagen;
+    await new Promise(res => { img.onload = () => res(); img.onerror = res; });
 
-    // Fondo: imagen si existe, gradiente si no
-    if (bgImg) {
-        ctx.drawImage(bgImg, 0, 0, W, H);
-        ctx.fillStyle = "rgba(0,0,0,0.6)";
-        ctx.fillRect(0, 0, W, H);
-    } else {
-        const gFallback = ctx.createLinearGradient(0, 0, 0, H);
-        gFallback.addColorStop(0, "#0077b6");
-        gFallback.addColorStop(1, "#003049");
-        ctx.fillStyle = gFallback;
-        ctx.fillRect(0, 0, W, H);
-    }
+    // Dibujar imagen de fondo
+    ctx.drawImage(img, 0, 0, W, H);
 
-    // Franja superior
-    const g = ctx.createLinearGradient(0, 0, W, 150);
-    g.addColorStop(0, "#0077b6"); g.addColorStop(1, "#00b4d8");
-    ctx.fillStyle = g; ctx.fillRect(0, 0, W, 150);
+    // Overlay oscuro para legibilidad
+    ctx.fillStyle = "rgba(0, 20, 40, 0.65)";
+    ctx.fillRect(0, 0, W, H);
+
+    // Franja superior (marca Monbá)
+    const g = ctx.createLinearGradient(0, 0, W, 160);
+    g.addColorStop(0, "#0077b6");
+    g.addColorStop(1, "#00b4d8");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, 160);
 
     // Logo
     const logoImg = await logoPromise;
     if (logoImg) {
         ctx.save();
-        ctx.shadowColor = "rgba(0,0,0,0.25)"; ctx.shadowBlur = 12; ctx.shadowOffsetY = 4;
-        ctx.fillStyle = "#fff"; rr(ctx, 40, 35, 80, 80, 20); ctx.fill();
+        ctx.shadowColor = "rgba(0,0,0,0.3)";
+        ctx.shadowBlur = 12;
+        ctx.shadowOffsetY = 4;
+        ctx.fillStyle = "#fff";
+        rr(ctx, 30, 30, 100, 100, 22);
+        ctx.fill();
         ctx.restore();
-        ctx.save(); rr(ctx, 46, 41, 68, 68, 16); ctx.clip();
-        ctx.drawImage(logoImg, 46, 41, 68, 68); ctx.restore();
+        ctx.save();
+        rr(ctx, 38, 38, 84, 84, 18);
+        ctx.clip();
+        ctx.drawImage(logoImg, 38, 38, 84, 84);
+        ctx.restore();
     }
 
-    ctx.fillStyle = "#fff"; ctx.textAlign = "left"; ctx.textBaseline = "middle";
-    ctx.font = "bold 38px Segoe UI, sans-serif"; ctx.fillText("Monbá QR", 140, 65);
-    ctx.font = "20px Segoe UI, sans-serif"; ctx.fillStyle = "#fefae0";
-    ctx.fillText("La Guía de Barlovento", 140, 105);
+    // Marca
+    ctx.fillStyle = "#fff";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+    ctx.font = "bold 42px Segoe UI, sans-serif";
+    ctx.fillText("Monbá QR", 150, 70);
+    ctx.font = "22px Segoe UI, sans-serif";
+    ctx.fillStyle = "#fefae0";
+    ctx.fillText("La Guía de Barlovento", 150, 115);
 
-    // Nombre del lugar
-    ctx.textAlign = "center"; ctx.fillStyle = "#fff";
-    ajustarTexto(ctx, nombre || "Monbá QR", W - 80, 32);
-    ctx.fillText(nombre || "Monbá QR", W / 2, 200);
+    // Nombre del lugar (centrado, grande)
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 36px Segoe UI, sans-serif";
+    ajustarTexto(ctx, nombre, W - 100, 36);
+    ctx.fillText(nombre, W / 2, 215);
 
-    // QR — ojo: NO reutilizamos el nombre "urlPuerta"
-    const destino = urlPuerta();
-    const qrImg = await new Promise(res => {
-        const i = new Image();
-        i.crossOrigin = "anonymous";
-        i.onload = () => res(i);
-        i.onerror = () => res(null);
-        i.src = qrURL(destino, 380);
+    // QR en el centro
+    const urlPuerta = new URL(
+        "qr.html?qr=" + encodeURIComponent(idAuto()) + "&to=" + encodeURIComponent(rutaRelativa()),
+        location.href
+    ).href;
+    const qrImg = new Image();
+    qrImg.crossOrigin = "anonymous";
+    qrImg.src = qrURL(urlPuerta, 380);
+    await new Promise(res => { qrImg.onload = () => res(); qrImg.onerror = res; });
+
+    ctx.save();
+    ctx.shadowColor = "rgba(0,0,0,0.4)";
+    ctx.shadowBlur = 24;
+    ctx.shadowOffsetY = 10;
+    ctx.fillStyle = "#fff";
+    rr(ctx, 110, 250, 420, 420, 24);
+    ctx.fill();
+    ctx.restore();
+    ctx.drawImage(qrImg, 130, 270, 380, 380);
+
+    /* ===== DESCRIPCIÓN MULTI-LÍNEA CENTRADA ===== */
+    ctx.font = "22px Segoe UI, sans-serif";
+    ctx.fillStyle = "#fff";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    const maxW = W - 100; // margen de 50px a cada lado
+    const lineas = wrapText(ctx, descripcion, maxW);
+    const lineHeight = 30;
+    const totalH = lineas.length * lineHeight;
+    // Posición inicial: centrada verticalmente entre el QR (fin ~670) y la franja inferior (~890)
+    let yInicio = 720;
+
+    // Si son muchas líneas, ajustar hacia arriba para que no se solape con la franja
+    if (lineas.length > 3) {
+        yInicio = 690;
+    }
+
+    lineas.forEach((linea, i) => {
+        ctx.fillText(linea, W / 2, yInicio + i * lineHeight);
     });
 
-    if (qrImg) {
-        ctx.save();
-        ctx.shadowColor = "rgba(0,0,0,0.3)"; ctx.shadowBlur = 20; ctx.shadowOffsetY = 8;
-        ctx.fillStyle = "#fff"; rr(ctx, 110, 240, 420, 420, 24); ctx.fill();
-        ctx.restore();
-        ctx.drawImage(qrImg, 130, 260, 380, 380);
-    } else {
-        ctx.fillStyle = "#fff"; rr(ctx, 110, 240, 420, 420, 24); ctx.fill();
-        ctx.fillStyle = "#c00"; ctx.font = "bold 22px Segoe UI, sans-serif";
-        ctx.fillText("No se pudo cargar el QR", W / 2, 460);
-    }
-
-    // Descripción
-    ctx.fillStyle = "#fff"; ctx.font = "22px Segoe UI, sans-serif";
-    ctx.textAlign = "center";
-    ajustarTexto(ctx, descripcion || "", W - 80, 22, "normal");
-    ctx.fillText(descripcion || "", W / 2, 720);
-
     // Franja inferior
-    ctx.fillStyle = "#0077b6"; ctx.fillRect(0, H - 70, W, 70);
-    ctx.fillStyle = "#fff"; ctx.font = "20px Segoe UI, sans-serif";
+    ctx.fillStyle = "#0077b6";
+    ctx.fillRect(0, H - 70, W, 70);
+    ctx.fillStyle = "#fff";
+    ctx.font = "20px Segoe UI, sans-serif";
+    ctx.textAlign = "center";
     ctx.fillText("Monbá QR · Directorio Turístico de Barlovento", W / 2, H - 35);
 
     $("#modal-qr").classList.add("activo");
-    sincronizarFavoritos();
 }
 
 /* ---------- COMPARTIR ---------- */
