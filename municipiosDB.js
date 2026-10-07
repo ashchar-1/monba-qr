@@ -90,9 +90,30 @@ const municipiosDB = {
         resena: "Río Chico vive de cara a la laguna: entre canales, garzas y botes que salen de madrugada a la faena. Páez es un municipio de agua —la laguna de Tacarigua, el río Tuy, sus manglares— y de una cocina que sabe a mar y a campo al mismo tiempo. Su gente conserva la calma de quien conoce los horarios de la marea de memoria.",
         playas: [
             { nombre: "Playa Paparo", oleaje: "Suave / Calmo", bandera: "verde", comoLlegar: "https://www.google.com/maps/dir/?api=1&destination=Playa+Paparo+Rio+Chico", tip: "Ubicada cerca de la desembocadura, de aguas muy mansas pero con sedimento natural.", imagen: "./img/paparo.jpg" },
-            { nombre: "Laguna de Tacarigua (Boca)", oleaje: "Súper calmo (Canal interior)", bandera: "verde", comoLlegar: "https://www.google.com/maps/dir/?api=1&destination=Laguna+de+Tacarigua+Miranda", tip: "Ideal para paseos en peñero, avistamiento de aves y ambiente de parque nacional.", imagen: "./img/laguna-tacarigua.jpg" },
-            { nombre: "Tacarigua de la Boca", oleaje: "Tranquilo", bandera: "verde", comoLlegar: "https://www.google.com/maps/dir/?api=1&destination=Tacarigua+de+la+Boca+Miranda", tip: "Poblado pesquero tradicional con excelente gastronomía marina local.", imagen: "./img/boca-tacarigua.jpg" },
-            { nombre: "Redoma de Río Chico", oleaje: "Moderado", bandera: "amarilla", comoLlegar: "https://www.google.com/maps/dir/?api=1&destination=Redoma+de+Rio+Chico+Miranda", tip: "Punto de entrada principal a la franja playera de los canales de Río Chico.", imagen: "./img/redoma-rio-chico.jpg" },
+            {
+    nombre: "Playa Tacarigua La Laguna (Sector Mar)",
+    oleaje: "Moderado",
+    bandera: "amarilla",
+    comoLlegar: "https://www.google.com/maps/dir/?api=1&destination=Playa+Tacarigua+La+Laguna+Rio+Chico",
+    tip: "Sector abierto al mar con oleaje moderado, ideal para quienes buscan aguas más movidas que el canal interior.",
+               imagen: "./img/daiquiri.jpg"
+},
+{
+    nombre: "Playa de Tacarigua",
+    oleaje: "Suave",
+    bandera: "verde",
+    comoLlegar: "https://www.google.com/maps/dir/?api=1&destination=Playa+de+Tacarigua+Rio+Chico",
+    tip: "Playa principal del pueblo pesquero, aguas tranquilas perfectas para familias y para disfrutar la gastronomía local de mariscos.",
+   imagen: "./img/daiquiri.jpg"
+},
+{
+    nombre: "Playa Boca de Entrada",
+    oleaje: "Moderado a fuerte",
+    bandera: "amarilla",
+    comoLlegar: "https://www.google.com/maps/dir/?api=1&destination=Playa+Boca+de+Entrada+Tacarigua+Rio+Chico",
+    tip: "Ubicada al otro lado de la Playa de Tacarigua, en la desembocadura de la laguna. Paisaje único donde se encuentra el río con el mar.",
+   imagen: "./img/daiquiri.jpg"
+},  { nombre: "Redoma de Río Chico", oleaje: "Moderado", bandera: "amarilla", comoLlegar: "https://www.google.com/maps/dir/?api=1&destination=Redoma+de+Rio+Chico+Miranda", tip: "Punto de entrada principal a la franja playera de los canales de Río Chico.", imagen: "./img/redoma-rio-chico.jpg" },
             { nombre: "Playa Cristal", oleaje: "Moderado", bandera: "amarilla", comoLlegar: "https://www.google.com/maps/dir/?api=1&destination=Playa+Cristal+Rio+Chico", tip: "Amplia franja de arena ideal para caminatas y deportes playeros.", imagen: "./img/cristal.jpg" },
             { nombre: "Playa Daiquirí", oleaje: "Moderado", bandera: "amarilla", comoLlegar: "https://www.google.com/maps/dir/?api=1&destination=Playa+Daiquiri+Rio+Chico", tip: "Una de las más concurridas y familiares de la zona con alquiler de toldos.", imagen: "./img/daiquiri.jpg" },
            { nombre: "Caño Copey", oleaje: "Moderado", bandera: "amarilla", comoLlegar: "https://www.google.com/maps/dir/?api=1&destination=Playa+Cano+Copey+Rio+Chico", tip: "Ubicada cerca del paso de los canales, zona muy tranquila y amplia.", imagen: "./img/copey.jpg" },            
