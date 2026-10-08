@@ -96,7 +96,7 @@ const municipiosDB = {
     bandera: "amarilla",
     comoLlegar: "https://www.google.com/maps/dir/?api=1&destination=Playa+Tacarigua+La+Laguna+Rio+Chico",
     tip: "Sector abierto al mar con oleaje moderado, ideal para quienes buscan aguas más movidas que el canal interior.",
-               imagen: "./img/daiquiri.jpg"
+               imagen: "./img/tacarigua-laguna-mar.jpg"
 },
 {
     nombre: "Playa de Tacarigua",
@@ -104,7 +104,7 @@ const municipiosDB = {
     bandera: "verde",
     comoLlegar: "https://www.google.com/maps/dir/?api=1&destination=Playa+de+Tacarigua+Rio+Chico",
     tip: "Playa principal del pueblo pesquero, aguas tranquilas perfectas para familias y para disfrutar la gastronomía local de mariscos.",
-   imagen: "./img/daiquiri.jpg"
+   imagen: "./img/tacarigua.jpg"
 },
 {
     nombre: "Playa Boca de Entrada",
@@ -112,7 +112,7 @@ const municipiosDB = {
     bandera: "amarilla",
     comoLlegar: "https://www.google.com/maps/dir/?api=1&destination=Playa+Boca+de+Entrada+Tacarigua+Rio+Chico",
     tip: "Ubicada al otro lado de la Playa de Tacarigua, en la desembocadura de la laguna. Paisaje único donde se encuentra el río con el mar.",
-   imagen: "./img/daiquiri.jpg"
+   imagen: "./img/boca.jpg"
 },  { nombre: "Redoma de Río Chico", oleaje: "Moderado", bandera: "amarilla", comoLlegar: "https://www.google.com/maps/dir/?api=1&destination=Redoma+de+Rio+Chico+Miranda", tip: "Punto de entrada principal a la franja playera de los canales de Río Chico.", imagen: "./img/redoma-rio-chico.jpg" },
             { nombre: "Playa Cristal", oleaje: "Moderado", bandera: "amarilla", comoLlegar: "https://www.google.com/maps/dir/?api=1&destination=Playa+Cristal+Rio+Chico", tip: "Amplia franja de arena ideal para caminatas y deportes playeros.", imagen: "./img/cristal.jpg" },
             { nombre: "Playa Daiquirí", oleaje: "Moderado", bandera: "amarilla", comoLlegar: "https://www.google.com/maps/dir/?api=1&destination=Playa+Daiquiri+Rio+Chico", tip: "Una de las más concurridas y familiares de la zona con alquiler de toldos.", imagen: "./img/daiquiri.jpg" },
