@@ -1,11 +1,8 @@
 /* =====================================================
-   MONBÁ QR · deep-link.js
+   MONBÁ QR · deep-link.js  (v2 robusto)
    Deep-link + resaltado del sitio escaneado
-   Archivo INDEPENDIENTE: no modifica app.js ni municipio.js
-   Se carga DESPUÉS de municipio.js en municipio.html
    ===================================================== */
 (function () {
-    /* CSS inyectado (no toca styles.css) */
     const style = document.createElement('style');
     style.textContent = `
         .monba-resaltada {
@@ -15,41 +12,45 @@
             animation: monba-pulso 1.2s ease-in-out 3;
             scroll-margin: 90px;
         }
-        @keyframes monba-pulso {
-            0%,100% { transform: scale(1); }
-            50%     { transform: scale(1.02); }
-        }
+        @keyframes monba-pulso { 0%,100%{transform:scale(1)} 50%{transform:scale(1.02)} }
     `;
     document.head.appendChild(style);
 
-    /* Normaliza texto a slug (igual que municipio.js) */
-    const slug = t => (t || '').toLowerCase().trim()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '');
+    /* Slug que SÍ normaliza acentos */
+    const slug = t => (t || '').toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 
-    /* Lee el parámetro sitio= o qr= de la URL */
+    const SEL = '.tarjeta-playa, .tarjeta-rincon, .tarjeta-playa-premium, .tarjeta-rincon-premium';
+
     function leerParam() {
         const p = new URLSearchParams(location.search);
         return p.get('sitio') || p.get('qr') || '';
     }
 
-    /* Busca la tarjeta cuyo título coincida con el ID escaneado */
     function buscarTarjeta(qrId) {
         const idMun = new URLSearchParams(location.search).get('id') || '';
-        const prefijos = [`playa-${idMun}-`, `rincon-${idMun}-`, 'playa-', 'rincon-'];
-        let objetivo = qrId;
-        for (const pref of prefijos) {
-            if (qrId.startsWith(pref)) { objetivo = qrId.slice(pref.length); break; }
+        const limpio = slug(qrId);
+        let objetivo = limpio;
+        for (const pref of [`playa-${slug(idMun)}-`, `rincon-${slug(idMun)}-`, 'playa-', 'rincon-']) {
+            if (limpio.startsWith(pref)) { objetivo = limpio.slice(pref.length); break; }
         }
-        const tarjetas = document.querySelectorAll('.tarjeta-playa, .tarjeta-rincon');
+        const tarjetas = document.querySelectorAll(SEL);
+        // 1) match exacto por slug del título
         for (const t of tarjetas) {
             const h4 = t.querySelector('h4');
-            if (h4 && slug(h4.textContent) === slug(objetivo)) return t;
+            if (h4 && slug(h4.textContent) === objetivo) return t;
+        }
+        // 2) match flexible (contiene / contenido-por)
+        for (const t of tarjetas) {
+            const h4 = t.querySelector('h4');
+            if (!h4) continue;
+            const s = slug(h4.textContent);
+            if (s.includes(objetivo) || objetivo.includes(s)) return t;
         }
         return null;
     }
 
-    /* Scroll + resaltado temporal */
     function resaltar(tarjeta) {
         tarjeta.classList.add('monba-resaltada');
         tarjeta.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -58,20 +59,22 @@
         setTimeout(() => tarjeta.classList.remove('monba-resaltada'), 5000);
     }
 
-    /* Espera a que municipio.js renderice las tarjetas (máx ~3s) */
-    function esperarRender(cb, intentos = 30) {
+    function esperarRender(cb, intentos = 40) {
         const check = () => {
-            if (document.querySelectorAll('.tarjeta-playa, .tarjeta-rincon').length > 0) { cb(); return; }
+            if (document.querySelectorAll(SEL).length > 0) { cb(); return; }
             if (intentos-- > 0) setTimeout(check, 100);
+            else console.warn('[deep-link] No se encontraron tarjetas tras 4s.');
         };
         check();
     }
 
     document.addEventListener('DOMContentLoaded', () => {
         const qrId = leerParam();
+        console.log('[deep-link] parámetro recibido:', qrId || '(ninguno)');
         if (!qrId) return;
         esperarRender(() => {
             const tarjeta = buscarTarjeta(qrId);
+            console.log('[deep-link] tarjeta encontrada:', tarjeta ? 'SÍ' : 'NO');
             if (tarjeta) setTimeout(() => resaltar(tarjeta), 300);
         });
     });
