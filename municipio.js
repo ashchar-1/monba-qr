@@ -10,6 +10,24 @@ function cargarMunicipio() {
         return;
     }
 
+    // --- NUEVO: Inyectar estilos para el resaltado ---
+    if (!document.getElementById('monba-estilos-resaltado')) {
+        const style = document.createElement('style');
+        style.id = 'monba-estilos-resaltado';
+        style.textContent = `
+            .monba-destacado {
+                border: 3px solid #0077b6 !important;
+                background-color: #e6f0fa !important;
+                box-shadow: 0 0 25px rgba(0,119,182,.6) !important;
+                transform: scale(1.02);
+                transition: all .5s ease-in-out;
+                position: relative;
+                z-index: 10;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
     $("#header-titulo").textContent = m.nombre;
     $("#municipio-nombre").innerHTML = `<i class="fa-solid fa-map-location-dot"></i> ${m.nombre}`;
     $("#municipio-resena").textContent = m.resena;
@@ -26,8 +44,12 @@ function cargarMunicipio() {
         $("#contenedor-playas").innerHTML = m.playas.map(p => {
             const urlLimpia = p.comoLlegar.replace(/\s+/g, '');
             const favId = `playa-${id}-${p.nombre.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+            
+            // NUEVO: Creamos un ID limpio para buscar la tarjeta (ej: "playa-santa-fe")
+            const slugTarjeta = `playa-${p.nombre.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+
             return `
-            <div class="tarjeta-playa-premium">
+            <div class="tarjeta-playa-premium" id="${slugTarjeta}"> <!-- NUEVO: Agregamos el ID aquí -->
                 <div class="playa-img-wrapper">
                     <img src="${p.imagen}" alt="${p.nombre}" class="playa-img" loading="lazy">
                     <div class="playa-img-overlay"></div>
@@ -70,8 +92,12 @@ function cargarMunicipio() {
         $("#contenedor-rincones").innerHTML = m.rincones.map(r => {
             const urlLimpia = r.comoLlegar.replace(/\s+/g, '');
             const favId = `rincon-${id}-${r.nombre.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+            
+            // NUEVO: Creamos un ID limpio para el rincón
+            const slugTarjeta = `rincon-${r.nombre.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+
             return `
-            <div class="tarjeta-rincon-premium">
+            <div class="tarjeta-rincon-premium" id="${slugTarjeta}"> <!-- NUEVO: Agregamos el ID aquí -->
                 <div class="rincon-img-wrapper">
                     <img src="${r.imagen}" alt="${r.nombre}" class="rincon-img" loading="lazy">
                     <div class="rincon-img-overlay"></div>
@@ -108,6 +134,40 @@ function cargarMunicipio() {
     estado.style.display = "none";
     contenedor.style.display = "block";
     if (typeof sincronizarFavoritos === "function") sincronizarFavoritos();
+
+    // ========================================================
+    // NUEVO: LÓGICA DE SCROLL Y RESALTADO AL FINAL DE LA CARGA
+    // ========================================================
+    // Buscamos si el QR trae el parámetro 'lugar' (o 'target')
+    const targetLugar = getParam("lugar") || getParam("target");
+    
+    if (targetLugar) {
+        // Pequeño retraso para asegurar que el navegador termine de pintar el HTML
+        setTimeout(() => {
+            const el = document.getElementById(targetLugar);
+            
+            if (el) {
+                // 1. Hacemos el scroll centrado
+                if ('scrollBehavior' in document.documentElement.style) {
+                    try {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    } catch (e) {
+                        el.scrollIntoView(true);
+                    }
+                } else {
+                    const rect = el.getBoundingClientRect();
+                    const offset = rect.top + window.pageYOffset - (window.innerHeight / 2) + (rect.height / 2);
+                    window.scrollTo(0, offset);
+                }
+
+                // 2. Aplicamos el resaltado
+                el.classList.add('monba-destacado');
+                setTimeout(() => el.classList.remove('monba-destacado'), 4000); // Se quita a los 4 segundos
+            } else {
+                console.warn('[Monbá] No se encontró el elemento con ID:', targetLugar);
+            }
+        }, 600); // 600ms es un buen tiempo para que carguen las imágenes y no salte el scroll
+    }
 }
 
 function iconoTipo(tipo) {
