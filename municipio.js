@@ -1,12 +1,10 @@
 function cargarMunicipio() {
     let cargadoExitosamente = false;
     
-    // Usamos JavaScript puro para buscar los elementos, así no dependemos de jQuery
     const estado = document.getElementById("mensaje-estado");
     const contenedor = document.getElementById("contenido-municipio");
 
     try {
-        // 1. Obtener el ID de la URL de forma segura
         let id;
         if (typeof getParam === "function") {
             id = getParam("id");
@@ -15,7 +13,6 @@ function cargarMunicipio() {
             id = params.get("id");
         }
 
-        // 2. Verificar que la base de datos exista
         if (typeof municipiosDB === "undefined") {
             throw new Error("municipiosDB no está definido. Revisa que municipiosDB.js esté cargado antes que este script.");
         }
@@ -29,7 +26,6 @@ function cargarMunicipio() {
             return; 
         }
 
-        // 3. Actualizar textos de la página
         const header = document.getElementById("header-titulo");
         if (header) header.textContent = m.nombre;
 
@@ -48,7 +44,6 @@ function cargarMunicipio() {
         const linkGoogle = document.getElementById("link-google");
         if (linkGoogle) linkGoogle.href = `https://www.google.com/search?q=${encodeURIComponent(m.busquedaGoogle || "")}`;
 
-        // 4. Inyectar estilos para el resaltado del QR
         if (!document.getElementById('monba-estilos-resaltado')) {
             const style = document.createElement('style');
             style.id = 'monba-estilos-resaltado';
@@ -66,12 +61,15 @@ function cargarMunicipio() {
             document.head.appendChild(style);
         }
 
+        // ✅ AQUÍ ESTÁ LA CORRECCIÓN: Evita IDs duplicados como "playa-playa-boca-de-entrada"
         const limpiarID = (texto) => {
             if (!texto) return "sin-nombre";
-            return texto.toLowerCase()
-                .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-                .replace(/[^a-z0-9]+/g, '-')
-                .replace(/^-+|-+$/g, '');
+            let limpio = texto.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            limpio = limpio.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+            // Si el nombre original ya incluye "playa" o "rincon", lo quitamos
+            if (limpio.startsWith('playa-')) limpio = limpio.replace('playa-', '');
+            if (limpio.startsWith('rincon-')) limpio = limpio.replace('rincon-', '');
+            return limpio;
         };
 
         /* RENDERIZAR PLAYAS */
@@ -82,7 +80,7 @@ function cargarMunicipio() {
             contenedorPlayas.innerHTML = m.playas.map(p => {
                 const urlLimpia = (p.comoLlegar || "").replace(/\s+/g, '');
                 const nombrePlaya = p.nombre || "Playa";
-                const slugTarjeta = `playa-${limpiarID(nombrePlaya)}`;
+                const slugTarjeta = `playa-${limpiarID(nombrePlaya)}`; // Ej: playa-boca-de-entrada
                 const favId = `playa-${id}-${limpiarID(nombrePlaya)}`;
 
                 return `
@@ -170,7 +168,7 @@ function cargarMunicipio() {
             }).join("");
         }
 
-        cargadoExitosamente = true; // Si llegamos aquí, todo salió bien
+        cargadoExitosamente = true;
 
     } catch (error) {
         console.error("Error crítico cargando el municipio:", error);
@@ -178,7 +176,6 @@ function cargarMunicipio() {
             estado.innerHTML = `<i class="fa-solid fa-triangle-exclamation fa-2x"></i><p>Error al cargar los datos. Revisa la consola.</p>`;
         }
     } finally {
-        // ESTO SE EJECUTA SIEMPRE, HAYA ERROR O NO
         if (cargadoExitosamente) {
             if (estado) estado.style.display = "none";
             if (contenedor) contenedor.style.display = "block";
@@ -187,19 +184,15 @@ function cargarMunicipio() {
                 try { sincronizarFavoritos(); } catch (e) {}
             }
 
-            // --- LÓGICA DE SCROLL Y RESALTADO (ACTUALIZADA) ---
+            // Lógica de Scroll y resaltado
             try {
                 const urlParams = new URLSearchParams(window.location.search);
-                
-                // 1. Buscamos en los 3 parámetros posibles (lugar, qr, target)
                 let targetLugar = urlParams.get('lugar') || urlParams.get('qr') || urlParams.get('target');
                 
-                // 2. Decodificamos por si viene con caracteres extraños de qr.html
                 if (targetLugar) {
                     try { targetLugar = decodeURIComponent(targetLugar); } catch(e) {}
                 }
                 
-                // 3. Hacemos el scroll si encontramos algo
                 if (targetLugar) {
                     setTimeout(() => {
                         const el = document.getElementById(targetLugar);
@@ -216,13 +209,12 @@ function cargarMunicipio() {
                         } else {
                             console.warn("Monbá: No se encontró la tarjeta con ID:", targetLugar);
                         }
-                    }, 1000); // 1 segundo para que las imágenes y la página terminen de cargar
+                    }, 1500); // Aumentamos a 1.5 segundos para asegurar que las imágenes carguen bien
                 }
             } catch (error) {
                 console.error("Error en scroll:", error);
             }
         } else {
-            // Si hubo un error, mostramos la pantalla de carga con el mensaje de error
             if (estado) estado.style.display = "block";
         }
     }
@@ -239,5 +231,6 @@ function iconoTipo(tipo) {
     };
     return iconos[tipo?.toLowerCase()] || "fa-leaf";
 }
+
 
 document.addEventListener("DOMContentLoaded", cargarMunicipio);
