@@ -187,11 +187,19 @@ function cargarMunicipio() {
                 try { sincronizarFavoritos(); } catch (e) {}
             }
 
-            // Lógica de Scroll y resaltado para el QR
+            // --- LÓGICA DE SCROLL Y RESALTADO (ACTUALIZADA) ---
             try {
                 const urlParams = new URLSearchParams(window.location.search);
-                const targetLugar = urlParams.get('lugar') || urlParams.get('target');
                 
+                // 1. Buscamos en los 3 parámetros posibles (lugar, qr, target)
+                let targetLugar = urlParams.get('lugar') || urlParams.get('qr') || urlParams.get('target');
+                
+                // 2. Decodificamos por si viene con caracteres extraños de qr.html
+                if (targetLugar) {
+                    try { targetLugar = decodeURIComponent(targetLugar); } catch(e) {}
+                }
+                
+                // 3. Hacemos el scroll si encontramos algo
                 if (targetLugar) {
                     setTimeout(() => {
                         const el = document.getElementById(targetLugar);
@@ -205,8 +213,10 @@ function cargarMunicipio() {
                             }
                             el.classList.add('monba-destacado');
                             setTimeout(() => el.classList.remove('monba-destacado'), 4000);
+                        } else {
+                            console.warn("Monbá: No se encontró la tarjeta con ID:", targetLugar);
                         }
-                    }, 800); 
+                    }, 1000); // 1 segundo para que las imágenes y la página terminen de cargar
                 }
             } catch (error) {
                 console.error("Error en scroll:", error);
