@@ -1,5 +1,5 @@
 /* =====================================================
-   MONBÁ QR · app.js (LÓGICA GENÉRICA COMPLETA) — CORREGIDO
+   MONBÁ QR · app.js (LÓGICA GENÉRICA COMPLETA) — CORREGIDO QR PLAYAS
    ===================================================== */
 const MONBA = { marca: "Monbá QR", correo: "tacai2753@gmail.com", claveFavoritos: "monba_favoritos", splashMs: 2200 };
 const $ = (s, c = document) => c.querySelector(s);
@@ -229,10 +229,17 @@ function descargarQR() {
     }
 }
 
+/* ---------- HELPER PARA LIMPIAR IDS ---------- */
+function limpiarIDParaQR(texto) {
+    if (!texto) return "sin-nombre";
+    let limpio = texto.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    limpio = limpio.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    if (limpio.startsWith('playa-')) limpio = limpio.replace('playa-', '');
+    if (limpio.startsWith('rincon-')) limpio = limpio.replace('rincon-', '');
+    return limpio;
+}
 
 /* ---------- QR PERSONALIZADO PARA PLAYAS/RINCONES ---------- */
-
-/* Helper: divide un texto en líneas que caben en maxW */
 function wrapText(ctx, texto, maxW) {
     const palabras = texto.split(' ');
     const lineas = [];
@@ -250,36 +257,31 @@ function wrapText(ctx, texto, maxW) {
     return lineas;
 }
 
-async function mostrarQRPlayaRincon(nombre, imagen, descripcion) {
+// ✅ AHORA RECIBE EL TIPO (playa o rincon)
+async function mostrarQRPlayaRincon(nombre, imagen, descripcion, tipo = 'playa') {
     asegurarModalQR();
     const canvas = $("#qr-canvas");
     const ctx = canvas.getContext("2d");
     const W = 640, H = 960;
 
-    // Cargar logo y QR en paralelo
     const logoPromise = cargarLogo();
 
-    // Imagen de fondo
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.src = imagen;
-    await new Promise(res => { img.onload = () => res(); img.onerror = res; });
+    await new Promise(res => { img.onload = () => res(); img.onerror = res(); });
 
-    // Dibujar imagen de fondo
     ctx.drawImage(img, 0, 0, W, H);
 
-    // Overlay oscuro para legibilidad
     ctx.fillStyle = "rgba(0, 20, 40, 0.65)";
     ctx.fillRect(0, 0, W, H);
 
-    // Franja superior (marca Monbá)
     const g = ctx.createLinearGradient(0, 0, W, 160);
     g.addColorStop(0, "#0077b6");
     g.addColorStop(1, "#00b4d8");
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W, 160);
 
-    // Logo
     const logoImg = await logoPromise;
     if (logoImg) {
         ctx.save();
@@ -297,7 +299,6 @@ async function mostrarQRPlayaRincon(nombre, imagen, descripcion) {
         ctx.restore();
     }
 
-    // Marca
     ctx.fillStyle = "#fff";
     ctx.textAlign = "left";
     ctx.textBaseline = "middle";
@@ -307,21 +308,30 @@ async function mostrarQRPlayaRincon(nombre, imagen, descripcion) {
     ctx.fillStyle = "#fefae0";
     ctx.fillText("La Guía de Barlovento", 150, 115);
 
-    // Nombre del lugar (centrado, grande)
     ctx.textAlign = "center";
     ctx.fillStyle = "#fff";
     ctx.font = "bold 36px Segoe UI, sans-serif";
     ajustarTexto(ctx, nombre, W - 100, 36);
     ctx.fillText(nombre, W / 2, 215);
 
-    // QR en el centro
-    const urlPuerta = new URL(
-        "qr.html?qr=" + encodeURIComponent(idAuto()) + "&to=" + encodeURIComponent(rutaRelativa()),
+    // ✅ AQUÍ ESTÁ LA MAGIA: Generamos la URL exacta con el parámetro 'lugar'
+    const cardId = `${tipo}-${limpiarIDParaQR(nombre)}`;
+    
+    const urlObj = new URL(window.location.href);
+    urlObj.searchParams.set('lugar', cardId);
+    urlObj.searchParams.set('qr', cardId);
+    urlObj.searchParams.set('src', 'qr');
+    
+    const toStr = urlObj.pathname.split('/').pop() + urlObj.search;
+    const urlPuertaConPlaya = new URL(
+        "qr.html?qr=" + encodeURIComponent(cardId) + 
+        "&to=" + encodeURIComponent(toStr),
         location.href
     ).href;
+
     const qrImg = new Image();
     qrImg.crossOrigin = "anonymous";
-    qrImg.src = qrURL(urlPuerta, 380);
+    qrImg.src = qrURL(urlPuertaConPlaya, 380);
     await new Promise(res => { qrImg.onload = () => res(); qrImg.onerror = res; });
 
     ctx.save();
@@ -334,20 +344,16 @@ async function mostrarQRPlayaRincon(nombre, imagen, descripcion) {
     ctx.restore();
     ctx.drawImage(qrImg, 130, 270, 380, 380);
 
-    /* ===== DESCRIPCIÓN MULTI-LÍNEA CENTRADA ===== */
     ctx.font = "22px Segoe UI, sans-serif";
     ctx.fillStyle = "#fff";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
-    const maxW = W - 100; // margen de 50px a cada lado
+    const maxW = W - 100;
     const lineas = wrapText(ctx, descripcion, maxW);
     const lineHeight = 30;
-    const totalH = lineas.length * lineHeight;
-    // Posición inicial: centrada verticalmente entre el QR (fin ~670) y la franja inferior (~890)
-    let yInicio = 720;
 
-    // Si son muchas líneas, ajustar hacia arriba para que no se solape con la franja
+    let yInicio = 720;
     if (lineas.length > 3) {
         yInicio = 690;
     }
@@ -356,7 +362,6 @@ async function mostrarQRPlayaRincon(nombre, imagen, descripcion) {
         ctx.fillText(linea, W / 2, yInicio + i * lineHeight);
     });
 
-    // Franja inferior
     ctx.fillStyle = "#0077b6";
     ctx.fillRect(0, H - 70, W, 70);
     ctx.fillStyle = "#fff";
@@ -469,12 +474,12 @@ function initAcciones() {
                 toast("🚧 Vitrina de proyectos: PRÓXIMAMENTE. ¿Tienes un proyecto académico o personal? Escríbenos a " + MONBA.correo + " y sé de los primeros en exhibirlo.");
                 break;
 
-            /* ✅ AHORA SÍ: dentro del switch */
+            /* ✅ AQUÍ PASAMOS EL TIPO ('playa' o 'rincon') */
             case "ver-qr-playa":
-                mostrarQRPlayaRincon(el.dataset.nombre, el.dataset.imagen, el.dataset.tip);
+                mostrarQRPlayaRincon(el.dataset.nombre, el.dataset.imagen, el.dataset.tip, 'playa');
                 break;
             case "ver-qr-rincon":
-                mostrarQRPlayaRincon(el.dataset.nombre, el.dataset.imagen, el.dataset.descripcion);
+                mostrarQRPlayaRincon(el.dataset.nombre, el.dataset.imagen, el.dataset.descripcion, 'rincon');
                 break;
             case "wa":
                 /* dejar el default del enlace (abre WhatsApp) */
