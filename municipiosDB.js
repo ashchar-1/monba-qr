@@ -62,7 +62,7 @@ const municipiosDB = {
         rincones: [
             { nombre: "Chorros de Urba (Panaquire)", tipo: "Cascada", descripcion: "Caídas de agua cristalina rodeadas de vegetación tropical, uno de los balnearios naturales más queridos de Barlovento.", comoLlegar: "https://www.google.com/maps/dir/?api=1&destination=Chorros+de+Urba+Panaquire+Miranda", imagen: "./img/urba.jpg" },
             { nombre: "Balneario turístico de Capaya", tipo: "Balneario", descripcion: "Pozo natural de aguas frías y transparentes, ideal para refrescarse entre la montaña cacaotera.", comoLlegar: "https://www.google.com/maps/dir/?api=1&destination=Balneario+Capaya+Caucagua+Miranda", imagen: "./img/capaya.jpg" },
-            { nombre: "Cueva Walter Dupuy", tipo: "Cueva", descripcion: "Formación geológica de gran valor espeleológico, refugio de fauna local y sitio de interés para los amantes del turismo de aventura.", comoLlegar: "https://www.google.com/maps/dir/?api=1&destination=Cueva+Walter+Dupuy+Caucagua+Miranda", imagen: "./img/dupuy.jpg" },
+            { nombre: "Cueva Walter Dupuy", tipo: "Cueva", descripcion: "Formación geológica de gran valor espeleológico, refugio de fauna local y sitio de interés para los amantes del turismo de aventura.", comoLlegar: "https://www.google.com/maps/dir/?api=1&destination=Cueva+Walter+Dupuy+Caucagua+Miranda", imagen: "./img/depuy.jpg" },
             { nombre: "Cascadas del río Marasmita", tipo: "Cascada", descripcion: "Serie de saltos de agua en medio del bosque húmedo, uno de los tesoros menos conocidos de Acevedo.", comoLlegar: "https://www.google.com/maps/dir/?api=1&destination=Cascadas+Rio+Marasmita+Miranda", imagen: "./img/marasmita.jpg" }
         ]
     },
