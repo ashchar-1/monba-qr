@@ -534,13 +534,12 @@ async function activarNotificacionesPush() {
       applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
     });
 
-    // Enviamos el pase VIP a tu servidor local
-    console.log('Enviando suscripción al servidor local...');
-    await fetch('http://localhost:3000/subscribe', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(subscription)
-    });
+   // Enviar la suscripción a tu backend en la nube
+await fetch('https://monba-push-server.onrender.com/subscribe', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(subscription)
+});
     
     alert('¡Notificaciones activadas y conectadas al servidor con éxito!');
 
