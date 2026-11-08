@@ -332,7 +332,7 @@ async function mostrarQRPlayaRincon(nombre, imagen, descripcion, tipo = 'playa')
     const qrImg = new Image();
     qrImg.crossOrigin = "anonymous";
     qrImg.src = qrURL(urlPuertaConPlaya, 380);
-    await new Promise(res => { qrImg.onload = () => res(); qrImg.onerror = res; });
+    await new Promise(res => { qrImg.onload = () => res(); qrImg.onerror = res(); });
 
     ctx.save();
     ctx.shadowColor = "rgba(0,0,0,0.4)";
@@ -527,11 +527,15 @@ async function activarNotificacionesPush() {
       applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
     });
 
-    console.log('=== COPIA ESTO, ES TU PASE VIP ===');
-    console.log(JSON.stringify(subscription));
-    console.log('==================================');
+    // ⚠️ NUEVO: Enviamos el pase VIP directamente a tu servidor local
+    console.log('Enviando suscripción al servidor local...');
+    await fetch('http://localhost:3000/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(subscription)
+    });
     
-    alert('¡Notificaciones activadas! Abre la consola (F12) para copiar tu pase VIP.');
+    alert('¡Notificaciones activadas y conectadas al servidor con éxito!');
 
   } catch (error) {
     console.error('Error al activar notificaciones:', error);
