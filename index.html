@@ -9,6 +9,26 @@
     <meta name="theme-color" content="#00A6C0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
+
+    <!-- ========================================== -->
+    <!-- INICIO CÓDIGO ONESIGNAL (Notificaciones Push) -->
+    <!-- ========================================== -->
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script>
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      OneSignalDeferred.push(async function(OneSignal) {
+        await OneSignal.init({
+          appId: "b342cb07-75bc-4374-a9bf-4df2c2346d28",
+          safari_web_id: "web.onesignal.auto.5a33fe23-ccc7-4feb-afe0-cf26b0b7b29c",
+          notifyButton: {
+            enable: true,
+          },
+        });
+      });
+    </script>
+    <!-- ========================================== -->
+    <!-- FIN CÓDIGO ONESIGNAL                       -->
+    <!-- ========================================== -->
 </head>
 <body>
     <!-- SPLASH -->
