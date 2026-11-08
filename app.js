@@ -493,7 +493,7 @@ function initAcciones() {
    ===================================================== */
 
 // ⚠️ AQUÍ PEGA TU CLAVE PÚBLICA (la que guardaste en el bloc de notas)
-const VAPID_PUBLIC_KEY = 'PEGA_AQUI_TU_CLAVE_PUBLICA';
+const VAPID_PUBLIC_KEY = 'BJnCfTHoJlXebC-BVpKeg_GcsA1jyznonu9mekPsduktdOXfVwcTkb9lSuTmMPqfxZcJ77DctES_U7YNbcrR4Hg';
 
 function urlBase64ToUint8Array(base64String) {
   const padding = '='.repeat((4 - base64String.length % 4) % 4);
