@@ -522,12 +522,19 @@ async function activarNotificacionesPush() {
     const reg = await navigator.serviceWorker.register('./sw.js', { scope: './' });
     await navigator.serviceWorker.ready;
 
+    // 🧹 LIMPIEZA: Eliminar suscripción vieja para evitar el error AbortError
+    const existingSubscription = await reg.pushManager.getSubscription();
+    if (existingSubscription) {
+      await existingSubscription.unsubscribe();
+      console.log('Suscripción antigua eliminada para evitar conflictos.');
+    }
+
     const subscription = await reg.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
     });
 
-    // ⚠️ NUEVO: Enviamos el pase VIP directamente a tu servidor local
+    // Enviamos el pase VIP a tu servidor local
     console.log('Enviando suscripción al servidor local...');
     await fetch('http://localhost:3000/subscribe', {
       method: 'POST',
