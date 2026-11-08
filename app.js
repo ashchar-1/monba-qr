@@ -488,6 +488,57 @@ function initAcciones() {
     });
 }
 
+/* =====================================================
+   CONFIGURACIÓN DE NOTIFICACIONES PUSH (NUEVO)
+   ===================================================== */
+
+// ⚠️ AQUÍ PEGA TU CLAVE PÚBLICA (la que guardaste en el bloc de notas)
+const VAPID_PUBLIC_KEY = 'PEGA_AQUI_TU_CLAVE_PUBLICA';
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+}
+
+async function activarNotificacionesPush() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    alert('Tu navegador no soporta notificaciones push.');
+    return;
+  }
+
+  try {
+    const permiso = await Notification.requestPermission();
+    if (permiso !== 'granted') {
+      alert('Permiso de notificaciones denegado.');
+      return;
+    }
+
+    const reg = await navigator.serviceWorker.register('./sw.js', { scope: './' });
+    await navigator.serviceWorker.ready;
+
+    const subscription = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+    });
+
+    console.log('=== COPIA ESTO, ES TU PASE VIP ===');
+    console.log(JSON.stringify(subscription));
+    console.log('==================================');
+    
+    alert('¡Notificaciones activadas! Abre la consola (F12) para copiar tu pase VIP.');
+
+  } catch (error) {
+    console.error('Error al activar notificaciones:', error);
+    alert('Hubo un error. Revisa la consola (F12).');
+  }
+}
+
 /* ---------- ARRANQUE ---------- */
 document.addEventListener("DOMContentLoaded", () => {
     initSplash();
