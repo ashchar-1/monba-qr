@@ -1,6 +1,7 @@
-// sw.js - Lector de notificaciones
+// sw.js - Lector de notificaciones y enlaces dinámicos
 self.addEventListener('push', function(event) {
   let data = { title: 'Monbá QR', body: '¡Tienes una nueva notificación!' };
+  let urlDestino = 'https://ashchar-1.github.io/monba-qr/'; // URL por defecto
   
   if (event.data) {
     try {
@@ -8,6 +9,11 @@ self.addEventListener('push', function(event) {
       const parsedData = event.data.json();
       data.title = parsedData.title || data.title;
       data.body = parsedData.body || data.body;
+      
+      // ⚠️ AQUÍ ESTÁ LA MAGIA: Capturamos la URL que envíes desde el panel
+      if (parsedData.url) {
+        urlDestino = parsedData.url;
+      }
     } catch (e) {
       // Si viene en texto plano, lo usamos como cuerpo
       data.body = event.data.text();
@@ -17,7 +23,8 @@ self.addEventListener('push', function(event) {
   const options = {
     body: data.body,
     icon: 'icon-192.png', 
-    data: { url: 'https://ashchar-1.github.io/monba-qr/' }
+    // Guardamos la URL dinámica para usarla cuando el usuario haga clic
+    data: { url: urlDestino }
   };
 
   event.waitUntil(
@@ -27,16 +34,21 @@ self.addEventListener('push', function(event) {
 
 self.addEventListener('notificationclick', function(event) {
   event.notification.close();
+  // Recuperamos la URL dinámica que guardamos arriba
+  const urlToOpen = event.notification.data.url;
+
   event.waitUntil(
-    clients.matchAll({ type: 'window' }).then(windowClients => {
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(windowClients => {
       for (let i = 0; i < windowClients.length; i++) {
         let client = windowClients[i];
-        if (client.url === event.notification.data.url && 'focus' in client) {
+        // Si la página ya está abierta, la enfocamos
+        if (client.url === urlToOpen && 'focus' in client) {
           return client.focus();
         }
       }
+      // Si no está abierta, abrimos una nueva pestaña con la URL
       if (clients.openWindow) {
-        return clients.openWindow(event.notification.data.url);
+        return clients.openWindow(urlToOpen);
       }
     })
   );
