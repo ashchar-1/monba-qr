@@ -24,9 +24,19 @@
             <button class="btn-menu" data-action="abrir-bandeja"><i class="fa-solid fa-bars"></i></button>
             <h1>Monbá QR</h1>
         </div>
-        <a href="favoritos.html" class="btn-favoritos-header" title="Mis favoritos">
-            <i class="fa-regular fa-heart"></i>
-        </a>
+        
+        <!-- Botones de la derecha (Campana + Corazón) -->
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <!-- Botón de Notificaciones -->
+            <button id="btn-suscribirse" onclick="activarNotificacionesPush()" title="Recibir alertas" style="background: transparent; border: none; color: white; font-size: 1.2rem; cursor: pointer; padding: 5px;">
+                <i class="fa-regular fa-bell" id="icono-campana"></i>
+            </button>
+            
+            <!-- Botón de Favoritos -->
+            <a href="favoritos.html" class="btn-favoritos-header" title="Mis favoritos">
+                <i class="fa-regular fa-heart"></i>
+            </a>
+        </div>
     </header>
 
     <!-- BANDEJA LATERAL -->
@@ -108,6 +118,5 @@
     <script src="municipiosDB.js"></script>
     <script src="index.js"></script>
 
-
-   </body>
+</body>
 </html>
