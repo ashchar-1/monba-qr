@@ -1,5 +1,5 @@
 /* =====================================================
-   MONBÁ QR · app.js (LÓGICA GENÉRICA COMPLETA) — CORREGIDO QR PLAYAS
+   MONBÁ QR · app.js (LÓGICA COMPLETA + NOTIFICACIONES + AUTOSCROLL)
    ===================================================== */
 const MONBA = { marca: "Monbá QR", correo: "tacai2753@gmail.com", claveFavoritos: "monba_favoritos", splashMs: 2200 };
 const $ = (s, c = document) => c.querySelector(s);
@@ -257,7 +257,6 @@ function wrapText(ctx, texto, maxW) {
     return lineas;
 }
 
-// ✅ AHORA RECIBE EL TIPO (playa o rincon)
 async function mostrarQRPlayaRincon(nombre, imagen, descripcion, tipo = 'playa') {
     asegurarModalQR();
     const canvas = $("#qr-canvas");
@@ -314,7 +313,6 @@ async function mostrarQRPlayaRincon(nombre, imagen, descripcion, tipo = 'playa')
     ajustarTexto(ctx, nombre, W - 100, 36);
     ctx.fillText(nombre, W / 2, 215);
 
-    // ✅ AQUÍ ESTÁ LA MAGIA: Generamos la URL exacta con el parámetro 'lugar'
     const cardId = `${tipo}-${limpiarIDParaQR(nombre)}`;
     
     const urlObj = new URL(window.location.href);
@@ -372,18 +370,33 @@ async function mostrarQRPlayaRincon(nombre, imagen, descripcion, tipo = 'playa')
     $("#modal-qr").classList.add("activo");
 }
 
-/* ---------- COMPARTIR ---------- */
+/* ---------- COMPARTIR (CON AUTO-SCROLL) ---------- */
 async function compartir(titulo, texto) {
+    // 1. Detectamos si estamos viendo una tarjeta específica para añadir el parámetro
+    let urlParaCompartir = new URL(window.location.href);
+    const cardId = getParam("lugar") || getParam("id");
+    
+    if (cardId) {
+        urlParaCompartir.searchParams.set("lugar", cardId);
+        urlParaCompartir.searchParams.set("src", "share"); // Marcamos que viene de un enlace compartido
+    }
+
     const d = {
         title: titulo || MONBA.marca,
         text: texto || "¡Descubre Barlovento con Monbá QR!",
-        url: window.location.href
+        url: urlParaCompartir.href
     };
+
     try {
-        if (navigator.share) { await navigator.share(d); return; }
+        if (navigator.share) { 
+            await navigator.share(d); 
+            return; 
+        }
         await navigator.clipboard.writeText(d.url);
         toast("Enlace copiado al portapapeles");
-    } catch { toast("Copia el enlace desde la barra del navegador"); }
+    } catch { 
+        toast("Copia el enlace desde la barra del navegador"); 
+    }
 }
 
 /* ---------- FEED DINÁMICO ---------- */
@@ -396,7 +409,7 @@ function generarFeedRandom(sel, items, cant = 3) {
                             : [...items].sort(() => Math.random() - 0.5).slice(0, cant);
 
     c.innerHTML = lista.map(i => `
-        <div class="tarjeta-lugar" style="cursor:pointer;"
+        <div class="tarjeta-lugar" style="cursor:pointer;" id="${i.id}"
              onclick="window.location.href='${i.url}'">
             <h4>${i.titulo}</h4>
             <p>${i.descripcion || ""}</p>
@@ -474,7 +487,6 @@ function initAcciones() {
                 toast("🚧 Vitrina de proyectos: PRÓXIMAMENTE. ¿Tienes un proyecto académico o personal? Escríbenos a " + MONBA.correo + " y sé de los primeros en exhibirlo.");
                 break;
 
-            /* ✅ AQUÍ PASAMOS EL TIPO ('playa' o 'rincon') */
             case "ver-qr-playa":
                 mostrarQRPlayaRincon(el.dataset.nombre, el.dataset.imagen, el.dataset.tip, 'playa');
                 break;
@@ -482,17 +494,15 @@ function initAcciones() {
                 mostrarQRPlayaRincon(el.dataset.nombre, el.dataset.imagen, el.dataset.descripcion, 'rincon');
                 break;
             case "wa":
-                /* dejar el default del enlace (abre WhatsApp) */
                 break;
         }
     });
 }
 
 /* =====================================================
-   CONFIGURACIÓN DE NOTIFICACIONES PUSH (NUEVO)
+   CONFIGURACIÓN DE NOTIFICACIONES PUSH
    ===================================================== */
 
-// ⚠️ AQUÍ PEGA TU CLAVE PÚBLICA (la que guardaste en el bloc de notas)
 const VAPID_PUBLIC_KEY = 'BJnCfTHoJlXebC-BVpKeg_GcsA1jyznonu9mekPsduktdOXfVwcTkb9lSuTmMPqfxZcJ77DctES_U7YNbcrR4Hg';
 
 function urlBase64ToUint8Array(base64String) {
@@ -522,11 +532,9 @@ async function activarNotificacionesPush() {
     const reg = await navigator.serviceWorker.register('./sw.js', { scope: './' });
     await navigator.serviceWorker.ready;
 
-    // 🧹 LIMPIEZA: Eliminar suscripción vieja para evitar el error AbortError
     const existingSubscription = await reg.pushManager.getSubscription();
     if (existingSubscription) {
       await existingSubscription.unsubscribe();
-      console.log('Suscripción antigua eliminada para evitar conflictos.');
     }
 
     const subscription = await reg.pushManager.subscribe({
@@ -534,14 +542,23 @@ async function activarNotificacionesPush() {
       applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
     });
 
-   // Enviar la suscripción a tu backend en la nube
-await fetch('https://monba-push-server.onrender.com/subscribe', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify(subscription)
-});
+    await fetch('https://monba-push-server.onrender.com/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(subscription)
+    });
     
-    alert('¡Notificaciones activadas y conectadas al servidor con éxito!');
+    // ✅ ÉXITO: Cambiamos el icono del header para avisar que ya está suscrito
+    const btn = document.getElementById('btn-suscribirse');
+    const icono = document.getElementById('icono-campana');
+    if (btn && icono) {
+      icono.className = 'fa-solid fa-bell'; 
+      btn.style.color = '#28a745'; 
+      btn.title = '¡Alertas activadas!';
+      btn.disabled = true;
+    }
+    
+    toast('¡Gracias! Recibirás nuestras notificaciones.');
 
   } catch (error) {
     console.error('Error al activar notificaciones:', error);
@@ -549,11 +566,41 @@ await fetch('https://monba-push-server.onrender.com/subscribe', {
   }
 }
 
+/* ---------- AUTO-SCROLL FLUIDO Y RESALTADO ---------- */
+function iniciarAutoScroll() {
+    // Buscamos si la URL tiene el parámetro 'lugar' (enviado por QR o por Compartir)
+    const lugarId = getParam("lugar");
+    if (!lugarId) return;
+
+    // Esperamos un poco (500ms) para que el feed dinámico o las imágenes terminen de cargar
+    setTimeout(() => {
+        // Buscamos el elemento por su ID (ej: id="playa-caracolito")
+        const elemento = document.getElementById(lugarId);
+        
+        if (elemento) {
+            // 1. Hacemos el desplazamiento suave (smooth)
+            elemento.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // 2. Añadimos la clase CSS para resaltarlo
+            elemento.classList.add('resaltado-animado');
+            
+            // 3. Quitamos el resaltado después de 4 segundos
+            setTimeout(() => {
+                elemento.classList.remove('resaltado-animado');
+            }, 4000);
+        } else {
+            console.log("No se encontró el elemento con ID:", lugarId);
+        }
+    }, 500);
+}
+
 /* ---------- ARRANQUE ---------- */
 document.addEventListener("DOMContentLoaded", () => {
     initSplash();
     initAcciones();
     sincronizarFavoritos();
+    iniciarAutoScroll(); // 👈 Aquí llamamos al auto-scroll al cargar la página
+    
     $("#modal-qr")?.addEventListener("click", function (e) {
         if (e.target === this) cerrarQR();
     });
