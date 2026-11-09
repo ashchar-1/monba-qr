@@ -1,6 +1,6 @@
 const MONBA = { marca: "Monbá QR", correo: "tacai2753@gmail.com", claveFavoritos: "monba_favoritos", splashMs: 2200 };
-const $ = (s, c = document) => c.querySelector(s);
-const $$ = (s, c = document) => [...c.querySelectorAll(s)];
+window.$ = (s, c = document) => c.querySelector(s);
+window.$$ = (s, c = document) => [...c.querySelectorAll(s)];
 const getParam = n => new URLSearchParams(window.location.search).get(n);
 const qrURL = (d, size = 420) =>
     `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(d)}`;
