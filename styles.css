@@ -1027,3 +1027,28 @@ header h1 { font-size: 1.3rem; font-weight: 700; letter-spacing: .5px; }
         grid-template-columns: repeat(3, 1fr);
     }
 }
+/* Efecto de resaltado para cuando llegan desde un QR o Enlace Compartido */
+.resaltado-animado {
+    animation: pulsoResaltado 2s ease-in-out;
+    box-shadow: 0 0 20px 5px rgba(0, 119, 182, 0.8) !important;
+    border: 2px solid #0077b6 !important;
+    transition: all 0.5s ease;
+    transform: scale(1.02);
+    z-index: 10;
+    position: relative;
+}
+
+@keyframes pulsoResaltado {
+    0% { 
+        transform: scale(1); 
+        box-shadow: 0 0 0 0 rgba(0, 119, 182, 0.7); 
+    }
+    50% { 
+        transform: scale(1.03); 
+        box-shadow: 0 0 30px 15px rgba(0, 119, 182, 0); 
+    }
+    100% { 
+        transform: scale(1); 
+        box-shadow: 0 0 0 0 rgba(0, 119, 182, 0); 
+    }
+}
