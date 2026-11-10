@@ -1011,7 +1011,33 @@ header h1 { font-size: 1.3rem; font-weight: 700; letter-spacing: .5px; }
     align-items: center;
     gap: 6px;
 }
+.btn-notificaciones {
+    background: linear-gradient(135deg, #00A6C0, #0077b6);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 50px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px auto;
+    box-shadow: 0 4px 15px rgba(0, 166, 192, 0.4);
+    transition: all 0.3s ease;
+}
 
+.btn-notificaciones:hover {
+    transform: translateY(-3px); /* El botón sube un poquito */
+    box-shadow: 0 8px 25px rgba(0, 166, 192, 0.6); /* La sombra crece */
+    background: linear-gradient(135deg, #0077b6, #00A6C0); /* Invierte los colores */
+}
+
+.btn-notificaciones:active {
+    transform: translateY(1px); /* Efecto de que se presiona */
+}
 /* Desktop: grid de 2 columnas */
 @media (min-width: 700px) {
     .feed-grid {
