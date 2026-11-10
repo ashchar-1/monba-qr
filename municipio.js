@@ -61,12 +61,10 @@ function cargarMunicipio() {
             document.head.appendChild(style);
         }
 
-        // ✅ AQUÍ ESTÁ LA CORRECCIÓN: Evita IDs duplicados como "playa-playa-boca-de-entrada"
         const limpiarID = (texto) => {
             if (!texto) return "sin-nombre";
             let limpio = texto.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
             limpio = limpio.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-            // Si el nombre original ya incluye "playa" o "rincon", lo quitamos
             if (limpio.startsWith('playa-')) limpio = limpio.replace('playa-', '');
             if (limpio.startsWith('rincon-')) limpio = limpio.replace('rincon-', '');
             return limpio;
@@ -80,7 +78,9 @@ function cargarMunicipio() {
             contenedorPlayas.innerHTML = m.playas.map(p => {
                 const urlLimpia = (p.comoLlegar || "").replace(/\s+/g, '');
                 const nombrePlaya = p.nombre || "Playa";
-                const slugTarjeta = `playa-${limpiarID(nombrePlaya)}`; // Ej: playa-boca-de-entrada
+                
+                // ✅ CORRECCIÓN: Usamos el ID exacto de la base de datos
+                const slugTarjeta = p.id || `playa-${limpiarID(nombrePlaya)}`;
                 const favId = `playa-${id}-${limpiarID(nombrePlaya)}`;
 
                 return `
@@ -130,7 +130,9 @@ function cargarMunicipio() {
                 const urlLimpia = (r.comoLlegar || "").replace(/\s+/g, '');
                 const nombreRincon = r.nombre || "Rincón";
                 const tipoRincon = r.tipo || "sendero";
-                const slugTarjeta = `rincon-${limpiarID(nombreRincon)}`;
+                
+                // ✅ CORRECCIÓN: Usamos el ID exacto de la base de datos
+                const slugTarjeta = r.id || `rincon-${limpiarID(nombreRincon)}`;
                 const favId = `rincon-${id}-${limpiarID(nombreRincon)}`;
 
                 return `
@@ -184,35 +186,24 @@ function cargarMunicipio() {
                 try { sincronizarFavoritos(); } catch (e) {}
             }
 
-            // Lógica de Scroll y resaltado
+            // ✅ EL AUTO-SCROLL YA LO HACE EL ARCHIVO app.js, PERO MANTENEMOS EL RESALTADO AQUÍ
             try {
                 const urlParams = new URLSearchParams(window.location.search);
                 let targetLugar = urlParams.get('lugar') || urlParams.get('qr') || urlParams.get('target');
                 
                 if (targetLugar) {
                     try { targetLugar = decodeURIComponent(targetLugar); } catch(e) {}
-                }
-                
-                if (targetLugar) {
+                    
                     setTimeout(() => {
                         const el = document.getElementById(targetLugar);
                         if (el) {
-                            if ('scrollBehavior' in document.documentElement.style) {
-                                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            } else {
-                                const rect = el.getBoundingClientRect();
-                                const offset = rect.top + window.pageYOffset - (window.innerHeight / 2) + (rect.height / 2);
-                                window.scrollTo(0, offset);
-                            }
                             el.classList.add('monba-destacado');
                             setTimeout(() => el.classList.remove('monba-destacado'), 4000);
-                        } else {
-                            console.warn("Monbá: No se encontró la tarjeta con ID:", targetLugar);
                         }
-                    }, 1500); // Aumentamos a 1.5 segundos para asegurar que las imágenes carguen bien
+                    }, 1500);
                 }
             } catch (error) {
-                console.error("Error en scroll:", error);
+                console.error("Error en resaltado:", error);
             }
         } else {
             if (estado) estado.style.display = "block";
@@ -231,6 +222,5 @@ function iconoTipo(tipo) {
     };
     return iconos[tipo?.toLowerCase()] || "fa-leaf";
 }
-
 
 document.addEventListener("DOMContentLoaded", cargarMunicipio);
