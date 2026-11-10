@@ -461,23 +461,56 @@ function initAcciones() {
     });
 }
 
+// --- LÓGICA MEJORADA DE AUTO-SCROLL ---
 function autoScrollLugar() {
     const lugar = getParam("lugar");
-    if (lugar) {
-        setTimeout(() => {
-            const el = document.getElementById(lugar);
-            if (el) {
+    if (!lugar) return;
+
+    // Limpiamos el ID para quitarle el "playa-" o "rincon-" si lo tiene
+    const idLimpio = lugar.replace(/^(playa-|rincon-)/, '');
+    let intentos = 0;
+    const maxIntentos = 30; // Intentará por 3 segundos (30 * 100ms)
+
+    const intervalo = setInterval(() => {
+        intentos++;
+
+        // 1. Buscamos por el ID exacto (ej: "playa-caracolito")
+        // 2. O por el ID sin el prefijo (ej: "caracolito")
+        let el = document.getElementById(lugar) || document.getElementById(idLimpio);
+
+        // 3. Fallback extremo: buscar en las tarjetas si el texto coincide
+        if (!el) {
+            const tarjetas = document.querySelectorAll('.tarjeta-lugar, .card-playa, .card-lugar, [class*="tarjeta"]');
+            for (const tarjeta of tarjetas) {
+                const textoLimpio = idLimpio.replace(/-/g, ' ').toLowerCase();
+                if (tarjeta.textContent.toLowerCase().includes(textoLimpio)) {
+                    el = tarjeta;
+                    break;
+                }
+            }
+        }
+
+        if (el) {
+            clearInterval(intervalo);
+            setTimeout(() => {
                 el.scrollIntoView({ behavior: "smooth", block: "center" });
-                el.style.transition = "box-shadow 0.5s, transform 0.5s";
-                el.style.boxShadow = "0 0 20px #00A6C0";
-                el.style.transform = "scale(1.02)";
+                // Efecto visual de iluminación
+                el.style.transition = "box-shadow 0.5s, transform 0.5s, background-color 0.5s";
+                el.style.boxShadow = "0 0 25px #00A6C0";
+                el.style.transform = "scale(1.03)";
+                el.style.backgroundColor = "rgba(0, 166, 192, 0.1)";
+                
                 setTimeout(() => {
                     el.style.boxShadow = "none";
                     el.style.transform = "scale(1)";
-                }, 2500);
-            }
-        }, 600); 
-    }
+                    el.style.backgroundColor = "";
+                }, 3000);
+            }, 300); // Pausa para asegurar que el navegador terminó de dibujar la página
+        } else if (intentos > maxIntentos) {
+            clearInterval(intervalo);
+            console.warn("No se encontró el elemento para auto-scroll:", lugar);
+        }
+    }, 100);
 }
 
 const VAPID_PUBLIC_KEY = 'BJnCfTHoJlXebC-BVpKeg_GcsA1jyznonu9mekPsduktdOXfVwcTkb9lSuTmMPqfxZcJ77DctES_U7YNbcrR4Hg';
@@ -541,8 +574,10 @@ document.addEventListener("DOMContentLoaded", () => {
     initSplash();
     initAcciones();
     sincronizarFavoritos();
-    autoScrollLugar();
     
+    // Le damos un pequeño respiro al navegador para que cargue el HTML antes de hacer scroll
+    setTimeout(autoScrollLugar, 500);
+
     $("#modal-qr")?.addEventListener("click", function (e) {
         if (e.target === this) cerrarQR();
     });
