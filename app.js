@@ -352,17 +352,30 @@ async function mostrarQRPlayaRincon(nombre, imagen, descripcion, tipo = 'playa')
     $("#modal-qr").classList.add("activo");
 }
 
-async function compartir(titulo, texto) {
+// ✅ AQUÍ ESTÁ LA MAGIA: Añadimos el parámetro "lugar"
+async function compartir(titulo, texto, lugar = null) {
+    let urlACompartir = window.location.href;
+    
+    // Si viene un "lugar" (ej. "playa-paparo"), lo agregamos a la URL antes de compartir
+    if (lugar) {
+        const urlObj = new URL(window.location.href);
+        urlObj.searchParams.set('lugar', lugar);
+        urlACompartir = urlObj.href;
+    }
+
     const d = {
         title: titulo || MONBA.marca,
         text: texto || "¡Descubre Barlovento con Monbá QR!",
-        url: window.location.href
+        url: urlACompartir
     };
+    
     try {
         if (navigator.share) { await navigator.share(d); return; }
         await navigator.clipboard.writeText(d.url);
         toast("Enlace copiado al portapapeles");
-    } catch { toast("Copia el enlace desde la barra del navegador"); }
+    } catch { 
+        toast("Copia el enlace desde la barra del navegador"); 
+    }
 }
 
 function generarFeedRandom(sel, items, cant = 3) {
@@ -432,7 +445,12 @@ function initAcciones() {
             case "abrir-bandeja":   abrirBandeja(); break;
             case "cerrar-bandeja":  cerrarBandeja(); break;
             case "volver":          history.back(); break;
-            case "compartir":       compartir(el.dataset.titulo, el.dataset.texto); break;
+            
+            // ✅ AQUÍ LE PASAMOS EL DATASET.LUGAR A LA FUNCIÓN COMPARTIR
+            case "compartir":       
+                compartir(el.dataset.titulo, el.dataset.texto, el.dataset.lugar); 
+                break;
+                
             case "ver-qr":          mostrarQR(el.dataset.qr || null, el.dataset.seccion); break;
             case "cerrar-qr":       cerrarQR(); break;
             case "fav":
