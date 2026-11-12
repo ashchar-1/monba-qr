@@ -255,17 +255,58 @@ async function mostrarQRPlayaRincon(nombre, imagen, descripcion, tipo = 'playa')
     img.crossOrigin = "anonymous";
     img.src = imagen;
     await new Promise(res => { img.onload = () => res(); img.onerror = res(); });
+async function mostrarQRPlayaRincon(nombre, imagen, descripcion, tipo = 'playa') {
+    asegurarModalQR();
+    const canvas = $("#qr-canvas");
+    const ctx = canvas.getContext("2d");
+    const W = 640, H = 960;
 
-    ctx.drawImage(img, 0, 0, W, H);
-    ctx.fillStyle = "rgba(0, 20, 40, 0.65)";
+    // 1. LIMPIAR EL CANVAS Y PONER UN FONDO SÓLIDO INMEDIATAMENTE
+    // Esto elimina la transparencia del QR anterior
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = "#0077b6"; 
     ctx.fillRect(0, 0, W, H);
 
+    // Mostramos el modal de una vez para que el usuario vea que está cargando
+    $("#modal-qr").classList.add("activo");
+
+    const logoPromise = cargarLogo();
+
+    // 2. CARGAR LA IMAGEN DE FONDO CON CONTROL DE ERRORES
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    
+    let imagenCargada = false;
+    if (imagen && imagen.trim() !== "") {
+        await new Promise(res => {
+            img.onload = () => { imagenCargada = true; res(); };
+            img.onerror = () => { imagenCargada = false; res(); };
+            img.src = imagen;
+        });
+    }
+
+    // 3. DIBUJAR EL FONDO (Imagen real o Gradiente si falla)
+    if (imagenCargada) {
+        ctx.drawImage(img, 0, 0, W, H);
+        ctx.fillStyle = "rgba(0, 20, 40, 0.65)"; // Capa oscura para leer el texto
+        ctx.fillRect(0, 0, W, H);
+    } else {
+        // Si la imagen no carga, dibujamos un fondo azul oscuro elegante
+        const gFallback = ctx.createLinearGradient(0, 0, 0, H);
+        gFallback.addColorStop(0, "#0077b6");
+        gFallback.addColorStop(1, "#003049");
+        ctx.fillStyle = gFallback;
+        ctx.fillRect(0, 0, W, H);
+    }
+
+    // 4. DIBUJAR LA FRANJA SUPERIOR
     const g = ctx.createLinearGradient(0, 0, W, 160);
     g.addColorStop(0, "#0077b6");
     g.addColorStop(1, "#00b4d8");
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W, 160);
 
+    // 5. DIBUJAR EL LOGO
     const logoImg = await logoPromise;
     if (logoImg) {
         ctx.save();
@@ -283,6 +324,7 @@ async function mostrarQRPlayaRincon(nombre, imagen, descripcion, tipo = 'playa')
         ctx.restore();
     }
 
+    // 6. DIBUJAR TEXTOS SUPERIORES
     ctx.fillStyle = "#fff";
     ctx.textAlign = "left";
     ctx.textBaseline = "middle";
@@ -298,6 +340,7 @@ async function mostrarQRPlayaRincon(nombre, imagen, descripcion, tipo = 'playa')
     ajustarTexto(ctx, nombre, W - 100, 36);
     ctx.fillText(nombre, W / 2, 215);
 
+    // 7. GENERAR Y DIBUJAR EL CÓDIGO QR
     const cardId = `${tipo}-${limpiarIDParaQR(nombre)}`;
     const urlObj = new URL(window.location.href);
     urlObj.searchParams.set('lugar', cardId);
@@ -314,8 +357,15 @@ async function mostrarQRPlayaRincon(nombre, imagen, descripcion, tipo = 'playa')
     const qrImg = new Image();
     qrImg.crossOrigin = "anonymous";
     qrImg.src = qrURL(urlPuertaConPlaya, 380);
-    await new Promise(res => { qrImg.onload = () => res(); qrImg.onerror = res; });
+    
+    // Control de error por si falla la API del QR
+    let qrCargado = false;
+    await new Promise(res => { 
+        qrImg.onload = () => { qrCargado = true; res(); }; 
+        qrImg.onerror = () => { qrCargado = false; res(); }; 
+    });
 
+    // Fondo blanco del QR
     ctx.save();
     ctx.shadowColor = "rgba(0,0,0,0.4)";
     ctx.shadowBlur = 24;
@@ -324,15 +374,24 @@ async function mostrarQRPlayaRincon(nombre, imagen, descripcion, tipo = 'playa')
     rr(ctx, 110, 250, 420, 420, 24);
     ctx.fill();
     ctx.restore();
-    ctx.drawImage(qrImg, 130, 270, 380, 380);
 
+    if (qrCargado) {
+        ctx.drawImage(qrImg, 130, 270, 380, 380);
+    } else {
+        // Si falla el QR, mostramos un texto de error
+        ctx.fillStyle = "#333";
+        ctx.font = "bold 24px Segoe UI, sans-serif";
+        ctx.fillText("Error al generar QR", W / 2, 460);
+    }
+
+    // 8. DIBUJAR DESCRIPCIÓN
     ctx.font = "22px Segoe UI, sans-serif";
     ctx.fillStyle = "#fff";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
     const maxW = W - 100;
-    const lineas = wrapText(ctx, descripcion, maxW);
+    const lineas = wrapText(ctx, descripcion || "", maxW);
     const lineHeight = 30;
 
     let yInicio = 720;
@@ -342,14 +401,13 @@ async function mostrarQRPlayaRincon(nombre, imagen, descripcion, tipo = 'playa')
         ctx.fillText(linea, W / 2, yInicio + i * lineHeight);
     });
 
+    // 9. FRANJA INFERIOR
     ctx.fillStyle = "#0077b6";
     ctx.fillRect(0, H - 70, W, 70);
     ctx.fillStyle = "#fff";
     ctx.font = "20px Segoe UI, sans-serif";
     ctx.textAlign = "center";
     ctx.fillText("Monbá QR · Directorio Turístico de Barlovento", W / 2, H - 35);
-
-    $("#modal-qr").classList.add("activo");
 }
 
 // ✅ AQUÍ ESTÁ LA MAGIA: Añadimos el parámetro "lugar"
