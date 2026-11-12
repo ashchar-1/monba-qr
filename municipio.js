@@ -79,7 +79,6 @@ function cargarMunicipio() {
                 const urlLimpia = (p.comoLlegar || "").replace(/\s+/g, '');
                 const nombrePlaya = p.nombre || "Playa";
                 
-                // ✅ CORRECCIÓN: Usamos el ID exacto de la base de datos
                 const slugTarjeta = p.id || `playa-${limpiarID(nombrePlaya)}`;
                 const favId = `playa-${id}-${limpiarID(nombrePlaya)}`;
 
@@ -108,7 +107,8 @@ function cargarMunicipio() {
                                 <button class="btn-mini-premium btn-fav" data-action="fav" data-fav-id="${favId}" data-fav-titulo="${nombrePlaya}" data-fav-url="municipio.html?id=${id}" title="Guardar en favoritos">
                                     <i class="fa-regular fa-heart"></i>
                                 </button>
-                                <button class="btn-mini-premium btn-share" data-action="compartir" data-titulo="${nombrePlaya}" data-texto="Mira esta playa en Monbá QR" title="Compartir">
+                                <!-- ✅ AQUÍ ESTÁ EL data-lugar AÑADIDO -->
+                                <button class="btn-mini-premium btn-share" data-action="compartir" data-titulo="${nombrePlaya}" data-texto="Mira esta playa en Monbá QR" data-lugar="${slugTarjeta}" title="Compartir">
                                     <i class="fa-solid fa-share-nodes"></i>
                                 </button>
                                 <button class="btn-mini-premium btn-qr" data-action="ver-qr-playa" data-nombre="${nombrePlaya}" data-imagen="${p.imagen || ''}" data-tip="${p.tip || ''}" title="Ver QR">
@@ -131,7 +131,6 @@ function cargarMunicipio() {
                 const nombreRincon = r.nombre || "Rincón";
                 const tipoRincon = r.tipo || "sendero";
                 
-                // ✅ CORRECCIÓN: Usamos el ID exacto de la base de datos
                 const slugTarjeta = r.id || `rincon-${limpiarID(nombreRincon)}`;
                 const favId = `rincon-${id}-${limpiarID(nombreRincon)}`;
 
@@ -157,7 +156,8 @@ function cargarMunicipio() {
                                 <button class="btn-mini-premium btn-fav" data-action="fav" data-fav-id="${favId}" data-fav-titulo="${nombreRincon}" data-fav-url="municipio.html?id=${id}" title="Guardar en favoritos">
                                     <i class="fa-regular fa-heart"></i>
                                 </button>
-                                <button class="btn-mini-premium btn-share" data-action="compartir" data-titulo="${nombreRincon}" data-texto="Mira este rincón natural en Monbá QR" title="Compartir">
+                                <!-- ✅ AQUÍ ESTÁ EL data-lugar AÑADIDO -->
+                                <button class="btn-mini-premium btn-share" data-action="compartir" data-titulo="${nombreRincon}" data-texto="Mira este rincón natural en Monbá QR" data-lugar="${slugTarjeta}" title="Compartir">
                                     <i class="fa-solid fa-share-nodes"></i>
                                 </button>
                                 <button class="btn-mini-premium btn-qr" data-action="ver-qr-rincon" data-nombre="${nombreRincon}" data-imagen="${r.imagen || ''}" data-descripcion="${r.descripcion || ''}" title="Ver QR">
@@ -186,7 +186,6 @@ function cargarMunicipio() {
                 try { sincronizarFavoritos(); } catch (e) {}
             }
 
-            // ✅ EL AUTO-SCROLL YA LO HACE EL ARCHIVO app.js, PERO MANTENEMOS EL RESALTADO AQUÍ
             try {
                 const urlParams = new URLSearchParams(window.location.search);
                 let targetLugar = urlParams.get('lugar') || urlParams.get('qr') || urlParams.get('target');
