@@ -100,7 +100,16 @@ function asegurarModalQR() {
     modal.addEventListener("click", e => { if (e.target === modal) cerrarQR(); });
     $("#btn-descargar-qr").addEventListener("click", descargarQR);
 }
-function cerrarQR() { $("#modal-qr")?.classList.remove("activo"); }
+
+function cerrarQR() { 
+    $("#modal-qr")?.classList.remove("activo"); 
+    // Limpiar el canvas al cerrar para que no queden fantasmas
+    const canvas = $("#qr-canvas");
+    if (canvas) {
+        const ctx = canvas.getContext("2d");
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+}
 
 function idAuto() {
     const pag = (location.pathname.split("/").pop() || "index.html").replace(".html", "");
@@ -249,25 +258,11 @@ async function mostrarQRPlayaRincon(nombre, imagen, descripcion, tipo = 'playa')
     const ctx = canvas.getContext("2d");
     const W = 640, H = 960;
 
-    const logoPromise = cargarLogo();
-
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.src = imagen;
-    await new Promise(res => { img.onload = () => res(); img.onerror = res(); });
-async function mostrarQRPlayaRincon(nombre, imagen, descripcion, tipo = 'playa') {
-    asegurarModalQR();
-    const canvas = $("#qr-canvas");
-    const ctx = canvas.getContext("2d");
-    const W = 640, H = 960;
-
     // 1. LIMPIAR EL CANVAS Y PONER UN FONDO SÓLIDO INMEDIATAMENTE
-    // Esto elimina la transparencia del QR anterior
     ctx.clearRect(0, 0, W, H);
     ctx.fillStyle = "#0077b6"; 
     ctx.fillRect(0, 0, W, H);
 
-    // Mostramos el modal de una vez para que el usuario vea que está cargando
     $("#modal-qr").classList.add("activo");
 
     const logoPromise = cargarLogo();
@@ -288,10 +283,9 @@ async function mostrarQRPlayaRincon(nombre, imagen, descripcion, tipo = 'playa')
     // 3. DIBUJAR EL FONDO (Imagen real o Gradiente si falla)
     if (imagenCargada) {
         ctx.drawImage(img, 0, 0, W, H);
-        ctx.fillStyle = "rgba(0, 20, 40, 0.65)"; // Capa oscura para leer el texto
+        ctx.fillStyle = "rgba(0, 20, 40, 0.65)"; 
         ctx.fillRect(0, 0, W, H);
     } else {
-        // Si la imagen no carga, dibujamos un fondo azul oscuro elegante
         const gFallback = ctx.createLinearGradient(0, 0, 0, H);
         gFallback.addColorStop(0, "#0077b6");
         gFallback.addColorStop(1, "#003049");
@@ -358,14 +352,12 @@ async function mostrarQRPlayaRincon(nombre, imagen, descripcion, tipo = 'playa')
     qrImg.crossOrigin = "anonymous";
     qrImg.src = qrURL(urlPuertaConPlaya, 380);
     
-    // Control de error por si falla la API del QR
     let qrCargado = false;
     await new Promise(res => { 
         qrImg.onload = () => { qrCargado = true; res(); }; 
         qrImg.onerror = () => { qrCargado = false; res(); }; 
     });
 
-    // Fondo blanco del QR
     ctx.save();
     ctx.shadowColor = "rgba(0,0,0,0.4)";
     ctx.shadowBlur = 24;
@@ -378,7 +370,6 @@ async function mostrarQRPlayaRincon(nombre, imagen, descripcion, tipo = 'playa')
     if (qrCargado) {
         ctx.drawImage(qrImg, 130, 270, 380, 380);
     } else {
-        // Si falla el QR, mostramos un texto de error
         ctx.fillStyle = "#333";
         ctx.font = "bold 24px Segoe UI, sans-serif";
         ctx.fillText("Error al generar QR", W / 2, 460);
@@ -410,7 +401,6 @@ async function mostrarQRPlayaRincon(nombre, imagen, descripcion, tipo = 'playa')
     ctx.fillText("Monbá QR · Directorio Turístico de Barlovento", W / 2, H - 35);
 }
 
-// ✅ AQUÍ ESTÁ LA MAGIA: Añadimos el parámetro "lugar"
 async function compartir(titulo, texto, lugar = null) {
     const urlObj = new URL(window.location.href);
     
@@ -435,6 +425,7 @@ async function compartir(titulo, texto, lugar = null) {
         toast("Copia el enlace desde la barra del navegador"); 
     }
 }
+
 function generarFeedRandom(sel, items, cant = 3) {
     const c = $(sel); if (!c) return;
     const favs = getFavoritos();
@@ -480,6 +471,7 @@ function mostrarBannerPWA() {
     $("#btn-instalar-pwa").addEventListener("click", instalarApp);
     $("#btn-cerrar-pwa").addEventListener("click", () => b.remove());
 }
+
 async function instalarApp() {
     if (!deferredPrompt) {
         toast("Chrome aún no valida el manifest. Revisa iconos (404), recarga sin caché o navega ~1 min.");
@@ -502,12 +494,9 @@ function initAcciones() {
             case "abrir-bandeja":   abrirBandeja(); break;
             case "cerrar-bandeja":  cerrarBandeja(); break;
             case "volver":          history.back(); break;
-            
-            // ✅ AQUÍ LE PASAMOS EL DATASET.LUGAR A LA FUNCIÓN COMPARTIR
             case "compartir":       
                 compartir(el.dataset.titulo, el.dataset.texto, el.dataset.lugar); 
                 break;
-                
             case "ver-qr":          mostrarQR(el.dataset.qr || null, el.dataset.seccion); break;
             case "cerrar-qr":       cerrarQR(); break;
             case "fav":
@@ -536,24 +525,18 @@ function initAcciones() {
     });
 }
 
-// --- LÓGICA MEJORADA DE AUTO-SCROLL ---
 function autoScrollLugar() {
     const lugar = getParam("lugar");
     if (!lugar) return;
 
-    // Limpiamos el ID para quitarle el "playa-" o "rincon-" si lo tiene
     const idLimpio = lugar.replace(/^(playa-|rincon-)/, '');
     let intentos = 0;
-    const maxIntentos = 30; // Intentará por 3 segundos (30 * 100ms)
+    const maxIntentos = 30;
 
     const intervalo = setInterval(() => {
         intentos++;
-
-        // 1. Buscamos por el ID exacto (ej: "playa-caracolito")
-        // 2. O por el ID sin el prefijo (ej: "caracolito")
         let el = document.getElementById(lugar) || document.getElementById(idLimpio);
 
-        // 3. Fallback extremo: buscar en las tarjetas si el texto coincide
         if (!el) {
             const tarjetas = document.querySelectorAll('.tarjeta-lugar, .card-playa, .card-lugar, [class*="tarjeta"]');
             for (const tarjeta of tarjetas) {
@@ -569,7 +552,6 @@ function autoScrollLugar() {
             clearInterval(intervalo);
             setTimeout(() => {
                 el.scrollIntoView({ behavior: "smooth", block: "center" });
-                // Efecto visual de iluminación
                 el.style.transition = "box-shadow 0.5s, transform 0.5s, background-color 0.5s";
                 el.style.boxShadow = "0 0 25px #00A6C0";
                 el.style.transform = "scale(1.03)";
@@ -580,7 +562,7 @@ function autoScrollLugar() {
                     el.style.transform = "scale(1)";
                     el.style.backgroundColor = "";
                 }, 3000);
-            }, 300); // Pausa para asegurar que el navegador terminó de dibujar la página
+            }, 300);
         } else if (intentos > maxIntentos) {
             clearInterval(intervalo);
             console.warn("No se encontró el elemento para auto-scroll:", lugar);
@@ -650,7 +632,6 @@ document.addEventListener("DOMContentLoaded", () => {
     initAcciones();
     sincronizarFavoritos();
     
-    // Le damos un pequeño respiro al navegador para que cargue el HTML antes de hacer scroll
     setTimeout(autoScrollLugar, 500);
 
     $("#modal-qr")?.addEventListener("click", function (e) {
