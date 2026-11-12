@@ -354,30 +354,29 @@ async function mostrarQRPlayaRincon(nombre, imagen, descripcion, tipo = 'playa')
 
 // ✅ AQUÍ ESTÁ LA MAGIA: Añadimos el parámetro "lugar"
 async function compartir(titulo, texto, lugar = null) {
-    let urlACompartir = window.location.href;
+    const urlObj = new URL(window.location.href);
     
-    // Si viene un "lugar" (ej. "playa-paparo"), lo agregamos a la URL antes de compartir
     if (lugar) {
-        const urlObj = new URL(window.location.href);
         urlObj.searchParams.set('lugar', lugar);
-        urlACompartir = urlObj.href;
     }
+    
+    const urlFinal = urlObj.href;
 
     const d = {
         title: titulo || MONBA.marca,
         text: texto || "¡Descubre Barlovento con Monbá QR!",
-        url: urlACompartir
+        url: urlFinal
     };
     
     try {
         if (navigator.share) { await navigator.share(d); return; }
-        await navigator.clipboard.writeText(d.url);
-        toast("Enlace copiado al portapapeles");
-    } catch { 
+        await navigator.clipboard.writeText(urlFinal);
+        toast("¡Enlace copiado con la playa incluida! 🎉");
+    } catch (error) { 
+        console.error("Error al compartir:", error);
         toast("Copia el enlace desde la barra del navegador"); 
     }
 }
-
 function generarFeedRandom(sel, items, cant = 3) {
     const c = $(sel); if (!c) return;
     const favs = getFavoritos();
